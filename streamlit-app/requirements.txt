@@ -1,0 +1,6 @@
+re
+openai
+textwrap
+streamlit
+transformers
+youtube-transcript-api
