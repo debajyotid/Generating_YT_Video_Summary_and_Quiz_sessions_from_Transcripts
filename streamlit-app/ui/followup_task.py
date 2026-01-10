@@ -13,7 +13,7 @@ Dependencies:
 """
 import streamlit as st
 
-from core.translation import (PREDEFINED_LANGS,get_translation_pipeline,translate_text,)
+from core.translate import (PREDEFINED_LANGS,get_translation_pipeline,translate_text,)
 from core.gpt_utils import (get_client,)
 from core.audio import generate_audio
 
