@@ -61,7 +61,9 @@ def ui_initial_form_renderer():
 
         if st.button("Fetch Transcript"):
             text = get_transcript(video_id, chosen_code)
-            st.text_area("Transcript", text, height=200)
+            st.markdown("#### Transcript:")
+            st.write(text)
+            st.download_button("Download Transcript", text, "transcript.txt")
             return text, chosen_code, video_id
 
     except Exception as e:
