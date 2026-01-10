@@ -44,7 +44,7 @@ def list_available_transcripts(video_id):
     Returns:
         list[tuple[str, str]]: A list of tuples containing (language_code, language_name).
     """
-    transcript_list = YouTubeTranscriptApi.list(video_id)
+    transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
     options = []
     for tr in transcript_list:
         lang_code = tr.language_code
