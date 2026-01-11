@@ -14,6 +14,18 @@ from core.transcript import (extract_video_id, list_available_transcripts, get_t
 # ---------------------------------------------------------
 # UI Section: Transcript Loader
 # ---------------------------------------------------------
+def _init_transcript_state():
+    if "transcript_options_loaded" not in st.session_state:
+        st.session_state.transcript_options_loaded = False
+    if "available_transcripts" not in st.session_state:
+        st.session_state.available_transcripts = None
+    if "transcript" not in st.session_state:
+        st.session_state.transcript = None
+    if "transcript_lang" not in st.session_state:
+        st.session_state.transcript_lang = None
+    if "video_id" not in st.session_state:
+        st.session_state.video_id = None
+
 def ui_initial_form_renderer():
     """
     Renders the Streamlit UI for the transcript loading section.
@@ -33,56 +45,55 @@ def ui_initial_form_renderer():
     """
     st.header("Step 1: Transcript")
 
-    # Initialize session state
-    if "transcript_options_loaded" not in st.session_state:
-        st.session_state.transcript_options_loaded = False
-    if "available_transcripts" not in st.session_state:
-        st.session_state.available_transcripts = None
-    if "transcript" not in st.session_state:
-        st.session_state.transcript = None
-    if "transcript_lang" not in st.session_state:
-        st.session_state.transcript_lang = None
-    if "video_id" not in st.session_state:
-        st.session_state.video_id = None
+    _init_transcript_state()
 
-    # --- YouTube URL Input ---
-    try:
-        youtube_url = st.text_input("Enter YouTube URL")
+    youtube_url = st.text_input("Enter YouTube URL", value=st.session_state.get("youtube_url", ""))
+    st.session_state.youtube_url = youtube_url  # persist URL
+
+    # Load transcript options
+    if st.button("Load Transcript Options", key="btn_load_transcripts"):
         if not youtube_url:
-            st.warning("Please enter a YouTube URL.")
-            return None, None, None
-    except Exception as e:
-        st.error(f"Error processing URL input: {e}")
-        return None, None, None
-        
-    # --- Load transcript options ---
-    if st.button("Load Transcript Options"):
-        video_id = extract_video_id(youtube_url)
-        if not video_id:
-            st.error("Invalid YouTube URL.")
-            return None, None, None
+            st.error("Please enter a YouTube URL.")
         else:
-            try:
-                options = list_available_transcripts(video_id)
-                if not options:
-                    st.error("No transcripts available for this video.")
-                    return None, None, None
-                else:                   
-                    st.session_state.available_transcripts = options
-                    st.session_state.video_id = video_id
-                    st.session_state.transcript_options_loaded = True
-                    st.success("Transcript options loaded.")
-            except Exception as e:
-                st.error(f"Error fetching transcripts: {e}")
+            video_id = extract_video_id(youtube_url)
+            if not video_id:
+                st.error("Invalid YouTube URL.")
+            else:
+                try:
+                    options = list_available_transcripts(video_id)
+                    if not options:
+                        st.error("No transcripts available for this video.")
+                    else:
+                        st.session_state.available_transcripts = options
+                        st.session_state.video_id = video_id
+                        st.session_state.transcript_options_loaded = True
+                        st.success("Transcript options loaded.")
+                except Exception as e:
+                    st.error(f"Error fetching transcripts: {e}")
 
-    # --- Show transcript language selector ---
-    if st.session_state.transcript_options_loaded:
-        lang_display = [ f"{code} - {name}" for code, name in st.session_state.available_transcripts]
-        choice = st.selectbox("Choose transcript language", lang_display)
+    # Language selection (if options loaded)
+    if st.session_state.transcript_options_loaded and st.session_state.available_transcripts:
+        lang_display = [
+            f"{code} - {name}"
+            for code, name in st.session_state.available_transcripts
+        ]
+        # keep previous selection if possible
+        default_index = 0
+        if st.session_state.transcript_lang:
+            for i, (code, _) in enumerate(st.session_state.available_transcripts):
+                if code == st.session_state.transcript_lang:
+                    default_index = i
+                    break
+
+        choice = st.selectbox(
+            "Choose transcript language",
+            lang_display,
+            index=default_index,
+            key="transcript_lang_select",
+        )
         chosen_code = choice.split(" - ")[0]
 
-        # Fetch transcript button
-        if st.button("Fetch Transcript"):
+        if st.button("Fetch Transcript", key="btn_fetch_transcript"):
             try:
                 text = get_transcript(st.session_state.video_id, chosen_code)
                 st.session_state.transcript = text
@@ -91,10 +102,6 @@ def ui_initial_form_renderer():
             except Exception as e:
                 st.error(f"Error retrieving transcript: {e}")
 
-    # --- Always show transcript if available ---
+    # Always show transcript if present
     if st.session_state.transcript:
         st.text_area("Transcript", st.session_state.transcript, height=200)
-
-    return (st.session_state.transcript,
-            st.session_state.transcript_lang,
-            st.session_state.video_id,)
