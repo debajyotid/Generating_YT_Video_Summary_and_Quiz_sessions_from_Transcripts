@@ -1,4 +1,4 @@
 openai
-streamlit==1.52.0
+streamlit
 transformers
 youtube-transcript-api==0.6.2
