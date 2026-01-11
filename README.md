@@ -165,12 +165,13 @@ The notebook version (learn_with_ai.ipynb) contains the full workflow:
 ---------------------------------------------------------------------------
 
 The notebook is also exported as a standalone script:
+
 	python streamlit-app/learn_with_ai.py
 
 This is useful for:
-	- CLI workflows
-	- Batch processing
-	- Integrating into other systems
+- CLI workflows
+- Batch processing
+- Integrating into other systems
 
 ### 3. Deploy Using Docker (Local or Cloud)
 ---------------------------------------------------------------------------
