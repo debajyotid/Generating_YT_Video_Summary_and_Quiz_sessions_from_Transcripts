@@ -1,20 +1,19 @@
 📘 Learn With AI — Modular YouTube Learning Assistant
 ==================================================
-
-This project is a fully modular, state-driven Streamlit application that transforms YouTube videos into structured learning resources. It retrieves a video transcript, allows the user to select the transcript language, and enables a suite of AI-powered tasks such as translation, summarization, step-by-step guide generation, quiz creation, and audio narration. 
-The system is designed for clarity, extensibility, and maintainability, using a clean separation between core logic, UI components, and state-driven orchestration.
-
-This Streamlit application provides an interactive, modular workflow for transforming YouTube videos into structured learning resources. The system retrieves a video's transcript, allows the user to choose the transcript 
-language (if multiple are available), and then enables a set of downstream AI-powered tasks such as translation, summarisation, step-by-step guide generation, quiz creation, and audio narration.
-
+A Streamlit + OpenAI + HuggingFace application for summarizing, translating, and learning from YouTube videos
 ---------------------------------------------------------------------------
-🏗️ Architecture
----------------------------------------------------------------------------
-The design follows a hub-and-spoke architecture where the transcript acts as the central hub:
 
-    TRANSCRIPT (hub) → Translation / Summarisation (Open Source & ChatGPT) / Steps (ChatGPT) / Quiz (ChatGPT) / Audio (TTS)
+This project began as a Jupyter notebook exploring how to extract YouTube transcripts and generate summaries, step‑by‑step guides, and quizzes using open‑source models and ChatGPT. It has since evolved into a **fully modular, state‑driven Streamlit application** with Docker support and multiple execution paths.
 
-The transcript acts as the central shared resource. Once loaded, the user can trigger any of the available tasks independently or chain them together (e.g., summarise → translate summary → generate audio).
+The app transforms YouTube videos into structured learning resources by:
+- Fetching transcripts (with multi‑language support)
+- Summarizing content (open‑source or ChatGPT)
+- Translating transcripts or summaries
+- Generating step‑by‑step instructions
+- Creating quizzes
+- Producing audio narration of summaries
+
+The system is built for clarity, maintainability, and extensibility,  using a clean separation between core logic, UI components, and state-driven orchestration.
 
 ---------------------------------------------------------------------------
 🎯 Core Objectives
@@ -32,28 +31,48 @@ The transcript acts as the central shared resource. Once loaded, the user can tr
 5. Maintain modularity, readability, and extensibility through a clean separation of UI, logic, and model utilities.
 
 ---------------------------------------------------------------------------
+🏗️ Architecture
+---------------------------------------------------------------------------
+The design follows a **hub-and-spoke** architecture where the transcript acts as the central hub:
+
+    TRANSCRIPT (hub)
+    ├── Translation
+	├── Summarisation (Open Source)
+	├── Summarisation (ChatGPT)
+	├── Steps (ChatGPT)
+	├── Quiz (ChatGPT)
+	└── Audio Narration (TTS)
+
+The transcript acts as the central shared resource. Once loaded, the user can trigger any of the available tasks independently or chain them together (e.g., summarise → translate summary → generate audio).
+
+---------------------------------------------------------------------------
 🧱 Project Structure
 ---------------------------------------------------------------------------
-    streamlit-app/
-    │
-    ├── app.py              # Main orchestrator
-    │
-    ├── core/               # Business Logic Layer
-    │   ├── transcript.py
-    │   ├── translate.py
-    │   ├── summarization.py
-    │   ├── gpt_utils.py
-    │   └── audio.py
-    │
-    └── ui/                 # Presentation Layer
-        ├── render_form.py
-        ├── initial_task_selection.py
-        └── followup_task.py
+
+	streamlit-app/
+	│
+	├── app.py                     # Main orchestrator
+	│
+	├── core/                      # Business Logic Layer
+	│   ├── transcript.py
+	│   ├── translate.py
+	│   ├── summarization.py
+	│   ├── gpt_utils.py
+	│   └── audio.py
+	│
+	├── ui/                        # Presentation Layer
+	│   ├── render_form.py
+	│   ├── initial_task_selection.py
+	│   └── followup_task.py
+	│
+	├── learn_with_ai.py           # Original notebook exported as .py
+	└── learn_with_ai.ipynb        # Original Jupyter notebook
 
 ---------------------------------------------------------------------------
 🧩 Module Overview
 ---------------------------------------------------------------------------
-
+										### Streamlit App
+						
 ### 1. core/ — Business Logic Layer
 ---------------------------------------------------------------------------
 - The application is organised into a set of modules under the 'core/' package, each responsible for a specific domain of functionality:
@@ -77,6 +96,12 @@ The transcript acts as the central shared resource. Once loaded, the user can tr
     - **ui.render_form**: Handles URL input and transcript retrieval.
     - **ui.initial_task_selection**: Manages primary tasks (Summary, Quiz, etc.).
     - **ui.followup_task**: Handles secondary actions like translating summaries or downloading audio.
+      
+---------------------------------------------------------------------------
+										### Jupyter Notebooks
+
+### 3. learn_with_ai.ipynb / learn_with_ai.py
+The original notebook version of the project, preserved for experimentation, education, and reproducibility.
 
 ---------------------------------------------------------------------------
 🔄 State-Driven Workflow
@@ -113,7 +138,9 @@ This architecture ensures the app remains maintainable, scalable, and easy to ev
 📦 Installation & Deployment
 ---------------------------------------------------------------------------
 
-Local Setup
+This project supports multiple deployment modes.
+
+### 1. Run the Streamlit App Locally
 ---------------------------------------------------------------------------
 
 #### Install dependencies
@@ -122,58 +149,98 @@ Local Setup
 #### Run the application
     streamlit run app.py
 
-Deployment
+Run the Jupyter Notebook Version
 ---------------------------------------------------------------------------
-This project supports **three** deployment modes.
 
-🚀 1. Deploy on Streamlit Community Cloud
-            1. Push your repo to GitHub
-            2. Go to https://streamlit.io/cloud
-            3. Create a new app
-            4. Set the main file to:
-                    streamlit-app/app.py
-            5. Ensure requirements.txt includes:
-                        openai
-                        streamlit
-                        transformers
-                        youtube-transcript-api==1.0.3
-            6. This step is already completed and the app is available at **https://learn-from-youtube-with-ai.streamlit.app/**
-                        
-🐳 2. Deploy via Docker (Local or Cloud)
-    - The repo already contains the below files:
-        - Dockerfile 
-        - docker-compose.yml
-    - Simply clone the repo locally and run the below commands:
-        - run locally
-            docker-compose up --build
-        - Access the app at:
-            http://localhost:8501
-        - Stop the container
-            docker-compose down
-        
-☁️ 3. Deploy Docker Image to Cloud Platforms
-    -  AWS ECS / Fargate
-        1. Build and push image to ECR
-        2. Create ECS service
-        3. Expose port 8501
-        4. Add environment variable OPENAI_API_KEY
-    - Azure Container Apps
-        1. Push image to Azure Container Registry
-        2. Create Container App
-        3. Configure ingress on port 8501
-        4. Add environment variables
-    - Google Cloud Run
-        1. Build and push image to Artifact Registry
-        2. Deploy to Cloud Run
-        3. Allow unauthenticated access (optional)
-        4. Set environment variables
+The notebook version (learn_with_ai.ipynb) contains the full workflow:
+	- Transcript extraction
+	- Translation
+	- Summarisation
+	- GPT‑based steps and quiz generation
 
-Cloud Run is often the easiest option.
+#### Run locally
+	jupyter notebook learn_with_ai.ipynb
+	
+### 2. Run the Python Script Version
+---------------------------------------------------------------------------
+
+The notebook is also exported as a standalone script:
+	python streamlit-app/learn_with_ai.py
+
+This is useful for:
+	- CLI workflows
+	- Batch processing
+	- Integrating into other systems
+
+### 3. Deploy Using Docker (Local or Cloud)
+---------------------------------------------------------------------------
+
+- Build the image
+
+		docker build -t learn-with-ai ./streamlit-app
+
+- Run the container
+
+		docker run -p 8501:8501 learn-with-ai
+
+- Access the app at:
+
+		http://localhost:8501
+
+---------------------------------------------------------------------------
+☁️ Cloud Deployment Options
+---------------------------------------------------------------------------
+
+### Streamlit Community Cloud
+---------------------------------------------------------------------------
+
+1. Push repo to GitHub
+2. Create a new app
+3. Set main file to:
+
+		streamlit-app/app.py
+   
+5. Ensure requirements.txt includes:
+   
+		- openai
+   		- streamlit
+		- transformers
+		- youtube-transcript-api==1.0.3
+
+### Deploy Docker Image to Cloud Platforms
+---------------------------------------------------------------------------
+
+#### Google Cloud Run (easiest)
+
+1. Build and push image to Artifact Registry
+2. Deploy to Cloud Run
+3. Allow unauthenticated access
+4. Set OPENAI_API_KEY
+
+#### AWS ECS / Fargate
+
+1. Push image to ECR
+2. Create ECS service
+3. Expose port 8501
+4. Add environment variables
+	
+#### Azure Container Apps
+
+1. Push image to ACR
+2. Create Container App
+3. Configure ingress
+4. Add environment variables
 
 ---------------------------------------------------------------------------
 📜 License
-Choose a license (MIT recommended) and include it here.
 ---------------------------------------------------------------------------
+
+This project is licensed under the MIT License, a permissive open‑source license that allows:
+• Commercial use
+• Modification
+• Distribution
+• Private use
+See the LICENSE file for details.
 
 ---------------------------------------------------------------------------
 🙌 Acknowledgements
