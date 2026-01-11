@@ -1,99 +1,126 @@
 """
-Learn With AI — Modular YouTube Learning Assistant
+📘 Learn With AI — Modular YouTube Learning Assistant
 ==================================================
 
-This Streamlit application provides an interactive, modular workflow for transforming YouTube videos into structured learning resources. The system retrieves a video's transcript, allows the user to choose the transcript language (if multiple are available), and then enables a set of downstream AI-powered tasks such as translation, summarisation, step-by-step guide generation, quiz creation, and audio narration.
+This project is a fully modular, state-driven Streamlit application that transforms YouTube videos into structured learning resources. It retrieves a video transcript, allows the user to select the transcript language, and enables a suite of AI-powered tasks such as translation, summarization, step-by-step guide generation, quiz creation, and audio narration. 
+The system is designed for clarity, extensibility, and maintainability, using a clean separation between core logic, UI components, and state-driven orchestration.
 
-The design follows a hub-and-spoke architecture:
+This Streamlit application provides an interactive, modular workflow for transforming YouTube videos into structured learning resources. The system retrieves a video's transcript, allows the user to choose the transcript 
+language (if multiple are available), and then enables a set of downstream AI-powered tasks such as translation, summarisation, step-by-step guide generation, quiz creation, and audio narration.
 
-    TRANSCRIPT (hub) → Translation / Summarisation / Steps / Quiz / Audio (spokes)
+---------------------------------------------------------------------------
+🏗️ Architecture
+---------------------------------------------------------------------------
+The design follows a hub-and-spoke architecture where the transcript acts as the central hub:
+
+    TRANSCRIPT (hub) → Translation / Summarisation (Open Source & ChatGPT) / Steps (ChatGPT) / Quiz (ChatGPT) / Audio (TTS)
 
 The transcript acts as the central shared resource. Once loaded, the user can trigger any of the available tasks independently or chain them together (e.g., summarise → translate summary → generate audio).
 
 ---------------------------------------------------------------------------
-Core Objectives
+🎯 Core Objectives
 ---------------------------------------------------------------------------
 
 1. Provide a flexible, user-driven workflow for learning from YouTube videos.
 2. Support multiple transcript languages when available.
 3. Allow translation into a predefined set of target languages.
 4. Enable multiple downstream tasks:
-       - Translation of transcript or summary
-       - Summarisation (open-source or ChatGPT)
-       - Step-by-step guide generation (ChatGPT)
-       - Quiz generation (ChatGPT)
-       - Audio narration of summaries (TTS)
-5. Maintain modularity, readability, and extensibility through a clean    separation of UI, logic, and model utilities.
+   - Translation of transcript or summary
+   - Summarisation (open-source or ChatGPT)
+   - Step-by-step guide generation (ChatGPT)
+   - Quiz generation (ChatGPT)
+   - Audio narration of summaries (TTS)
+5. Maintain modularity, readability, and extensibility through a clean separation of UI, logic, and model utilities.
 
 ---------------------------------------------------------------------------
-Module Overview and How They Tie Together
+🧱 Project Structure
+---------------------------------------------------------------------------
+    streamlit-app/
+    │
+    ├── app.py              # Main orchestrator
+    │
+    ├── core/               # Business Logic Layer
+    │   ├── transcript.py
+    │   ├── translate.py
+    │   ├── summarization.py
+    │   ├── gpt_utils.py
+    │   └── audio.py
+    │
+    └── ui/                 # Presentation Layer
+        ├── render_form.py
+        ├── initial_task_selection.py
+        └── followup_task.py
+
+---------------------------------------------------------------------------
+🧩 Module Overview
 ---------------------------------------------------------------------------
 
-The application is organised into a set of modules under the 'core/' package, each responsible for a specific domain of functionality:
-
-1. core.transcript
-   - list_available_transcripts(video_id)
-   - get_transcript(video_id, language_code)
-   - Provides transcript retrieval and language selection.
-   - Supplies the central "hub" text used by all other tasks.
-
-2. core.translation
-   - PREDEFINED_LANGS (mapping of human labels → language codes)
-   - get_translation_pipeline(src_lang, tgt_lang)
-   - translate_text(text, translator)
-   - Handles translation of transcript or summary using dynamic model selection.
-
-3. core.summarization
-   - load_summarizer()
-   - summarize_text(text, summarizer)
-   - Provides open‑source summarisation using HuggingFace models.
-
-4. core.gpt_utils
-   - get_client(api_key)
-   - gpt_summary(text)
-   - gpt_steps(text)
-   - gpt_quiz(text)
-   - Provides ChatGPT-based summarisation, step extraction, and quiz generation.
-
-5. core.audio
-   - generate_audio(text, client)
-   - Converts summaries into spoken audio using TTS.
-
-There is also a seperate 'ui/' module that organises the Streamlit interface into three main sections:
-
-1. ui.render_form
-   - ui_initial_form_renderer(): Handles YouTube URL input, transcript language selection, and retrieval.
-       - User enters a YouTube URL.
-       - Available transcript languages are listed.
-       - User selects a language and retrieves the transcript.
-       - The transcript is stored in session state.
-2. ui.initial_task_selection
-   - ui_primary_task_section(transcript, transcript_lang, openai_key): Manages primary task selection and execution (translation, summarisation, steps, quiz).
-        - User chooses one of the main tasks:
-            Translation
-            Summarisation (Open Source)
-            Summarisation (ChatGPT)
-            Steps (ChatGPT)
-            Quiz (ChatGPT)
-        - The corresponding core module function is invoked.
-        - Outputs are displayed and optionally stored for follow-up tasks.
-3. ui.followup_task
-   - ui_followup_section(summary, summary_lang, openai_key): Manages follow-up actions on the summary (translation, audio generation, download).
-        - If a summary exists, the user can:
-            Translate the summary
-            Generate audio narration
-            Download the summary
-        - These actions use the same translation and audio modules.
+### 1. core/ — Business Logic Layer
 ---------------------------------------------------------------------------
-Extensibility
+- The application is organised into a set of modules under the 'core/' package, each responsible for a specific domain of functionality:
+- These modules are stateless, testable, and contain all non-UI business logic.
+    - **core.transcript**: Extracts video IDs and retrieves transcripts.
+        - Provides transcript retrieval and language selection.
+        - Supplies the central "hub" text used by all other tasks.
+    - **core.translate**: Handles HuggingFace translation pipelines and text segmentation.
+    - **core.summarization**: Provides open‑source summarisation using HuggingFace models.
+    - **core.gpt_utils**: Initializes OpenAI client for GPT-based summaries, steps, and quizzes.
+        - get_client(api_key)
+        - gpt_summary(text)
+        - gpt_steps(text)
+        - gpt_quiz(text)
+    - **core.audio**: Converts text to speech using OpenAI TTS.
+		
+### 2. ui/ — Presentation Layer
+---------------------------------------------------------------------------
+- This is a seperate 'ui/' module
+- Streamlit components that read/write to st.session_state and call core functions.
+    - **ui.render_form**: Handles URL input and transcript retrieval.
+    - **ui.initial_task_selection**: Manages primary tasks (Summary, Quiz, etc.).
+    - **ui.followup_task**: Handles secondary actions like translating summaries or downloading audio.
+
+---------------------------------------------------------------------------
+🔄 State-Driven Workflow
+---------------------------------------------------------------------------
+The UI is rendered based on st.session_state to ensure:
+- Buttons remain persistent after interaction.
+- Data persists across reruns.
+- Tasks can be chained in any order.
+- Predictable behavior on Streamlit Community Cloud.
+
+---------------------------------------------------------------------------
+🛠️ Extensibility
 ---------------------------------------------------------------------------
 
 The modular structure allows new tasks to be added easily:
-    - Add a new function in a core module.
-    - Add a UI section that calls it.
-    - Optionally chain it with existing tasks.
+- Add a new function in a core module.
+- Add a UI section that calls it.
+- Optionally chain it with existing tasks.
+- Update app.py to include the new component.
 
 This architecture ensures the app remains maintainable, scalable, and easy to evolve as new AI capabilities or learning workflows are introduced.
+
+---------------------------------------------------------------------------
+📦 Installation & Deployment
+---------------------------------------------------------------------------
+
+Local Setup
+---------------------------------------------------------------------------
+
+#### Install dependencies
+    pip install -r requirements.txt
+
+#### Run the application
+    streamlit run app.py
+
+Deployment
+---------------------------------------------------------------------------
+Compatible with Streamlit Community Cloud, simply ensure that the **requirements.txt** includes:
+
+    openai
+    streamlit
+    transformers
+    youtube-transcript-api
 
 """
 import streamlit as st
