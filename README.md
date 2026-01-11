@@ -236,10 +236,10 @@ This is useful for:
 ---------------------------------------------------------------------------
 
 This project is licensed under the MIT License, a permissive open‑source license that allows:
-• Commercial use
-• Modification
-• Distribution
-• Private use
+- Commercial use
+- Modification
+- Distribution
+- Private use
 See the LICENSE file for details.
 
 ---------------------------------------------------------------------------
