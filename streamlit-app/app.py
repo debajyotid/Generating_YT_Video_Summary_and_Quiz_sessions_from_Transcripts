@@ -115,23 +115,25 @@ def main():
     3.  Invokes `ui_initial_form_renderer` to handle YouTube URL input and transcript retrieval.
     4.  Invokes `ui_primary_task_section` to process the transcript (e.g., summarize, quiz).
     5.  Invokes `ui_followup_section` to handle post-processing actions (e.g., audio generation).
+    
+    Orchestrates the Learn With AI app using session_state as the single source of truth for transcript, summary, language choices, and workflow chaining.
     """
     st.set_page_config(page_title="Learn With AI", layout="wide")
     st.title("🎓 Learn With AI — Modular YouTube Learning Assistant")
 
-    openai_key = st.text_input("Enter your OpenAI API Key", type="password")
+    if "openai_key" not in st.session_state:
+        st.session_state.openai_key = ""
 
-    # Step 1: Transcript
-    transcript, transcript_lang, video_id = ui_initial_form_renderer()
+    st.session_state.openai_key = st.text_input("Enter your OpenAI API Key", type="password", value=st.session_state.openai_key)
 
-    # Step 2: Primary Task
-    summary, summary_lang = ui_primary_task_section(transcript, transcript_lang, openai_key)
+    # Step 1: Transcript (updates session_state.transcript / transcript_lang / video_id)
+    ui_initial_form_renderer()
 
-    # Step 3: Follow-up Actions
-    ui_followup_section(summary, summary_lang, openai_key)
+    # Step 2: Primary Task (updates session_state.summary / summary_lang)
+    ui_primary_task_section(st.session_state.openai_key)
 
-# ---------------------------------------------------------
-# Streamlit entry point
-# ---------------------------------------------------------
+    # Step 3: Follow-up Actions on summary (uses summary from session_state)
+    ui_followup_section(st.session_state.openai_key)
+
 if __name__ == "__main__":
     main()
