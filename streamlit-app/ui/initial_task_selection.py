@@ -20,7 +20,13 @@ from core.gpt_utils import (get_client,gpt_summary,gpt_steps,gpt_quiz,)
 # ---------------------------------------------------------
 # UI Section: Primary Task Selector
 # ---------------------------------------------------------
-def ui_primary_task_section(transcript, transcript_lang, openai_key):
+def _init_task_state():
+    if "summary" not in st.session_state:
+        st.session_state.summary = None
+    if "summary_lang" not in st.session_state:
+        st.session_state.summary_lang = None
+
+def ui_primary_task_section(openai_key: str):
     """
     Renders the Streamlit UI for the primary task selection and execution.
 
@@ -36,8 +42,6 @@ def ui_primary_task_section(transcript, transcript_lang, openai_key):
     5.  **Quiz (ChatGPT)**: Generates a multiple-choice quiz using OpenAI's GPT models.
 
     Args:
-        transcript (str): The full text of the video transcript.
-        transcript_lang (str): The language code of the original transcript (e.g., 'en').
         openai_key (str): The OpenAI API key provided by the user (required for GPT tasks).
 
     Returns:
@@ -45,86 +49,92 @@ def ui_primary_task_section(transcript, transcript_lang, openai_key):
             Returns (None, None) if no task is selected or if the task (like Steps/Quiz) does not produce a chainable text result.
     """
     st.header("Step 2: Primary Task")
+    _init_task_state()
+
+    transcript = st.session_state.get("transcript")
+    transcript_lang = st.session_state.get("transcript_lang")
 
     task = st.selectbox(
-                            "Select a task",
-                            [
-                                "None",
-                                "Translation",
-                                "Summarisation (Open Source)",
-                                "Summarisation (ChatGPT)",
-                                "Steps (ChatGPT)",
-                                "Quiz (ChatGPT)",
-                            ],
-                        )
+        "Select a task",
+        [
+            "None",
+            "Translation",
+            "Summarisation (Open Source)",
+            "Summarisation (ChatGPT)",
+            "Steps (ChatGPT)",
+            "Quiz (ChatGPT)",
+        ],
+        key="primary_task_select",
+    )
 
-    if task == "None" or transcript is None:
-        return None, None
+    if transcript is None:
+        st.info("Load a transcript first in Step 1.")
+        return
 
     # --- Translation ---
     if task == "Translation":
-        tgt_label = st.selectbox("Translate to", list(PREDEFINED_LANGS.keys()))
+        tgt_label = st.selectbox(
+            "Translate transcript to",
+            list(PREDEFINED_LANGS.keys()),
+            key="translate_transcript_tgt",
+        )
         tgt_lang = PREDEFINED_LANGS[tgt_label]
 
-        if st.button("Translate Transcript"):
+        if st.button("Translate Transcript", key="btn_translate_transcript"):
             try:
                 translator = get_translation_pipeline(transcript_lang, tgt_lang)
-                with st.spinner("Translating..."):
+                with st.spinner("Translating transcript..."):
                     translated = translate_text(transcript, translator)
-                st.text_area(f"Translated to {tgt_label}", translated, height=200)
+                st.text_area(
+                    f"Transcript translated to {tgt_label}",
+                    translated,
+                    height=200,
+                )
                 st.download_button("Download Translation", translated, "translated.txt")
-                return translated, tgt_lang
+                # Optional: treat translated transcript as new summary-like content
             except Exception as e:
                 st.error(f"Translation error: {e}")
 
     # --- Summarisation (Open Source) ---
     if task == "Summarisation (Open Source)":
-        if st.button("Summarise Transcript"):
+        if st.button("Summarise Transcript", key="btn_summarise_os"):
             summarizer = load_summarizer()
-            with st.spinner("Summarising..."):
+            with st.spinner("Summarising transcript..."):
                 summary = summarize_text(transcript, summarizer)
             st.text_area("Summary (Open Source)", summary, height=200)
-            return summary, transcript_lang
+            st.session_state.summary = summary
+            st.session_state.summary_lang = transcript_lang
 
     # --- Summarisation (ChatGPT) ---
     if task == "Summarisation (ChatGPT)":
         if not openai_key:
-            st.error("Enter OpenAI API key.")
-            return None, None
-
-        if st.button("Summarise with ChatGPT"):
+            st.error("Enter OpenAI API key to use ChatGPT tasks.")
+        elif st.button("Summarise with ChatGPT", key="btn_summarise_gpt"):
             client = get_client(openai_key)
-            with st.spinner("Summarising..."):
+            with st.spinner("Summarising with ChatGPT..."):
                 summary = gpt_summary(client, transcript)
             st.text_area("Summary (ChatGPT)", summary, height=200)
-            return summary, transcript_lang
+            st.session_state.summary = summary
+            st.session_state.summary_lang = transcript_lang
 
-    # --- Steps ---
+    # --- Steps (ChatGPT) ---
     if task == "Steps (ChatGPT)":
         if not openai_key:
-            st.error("Enter OpenAI API key.")
-            return None, None
-
-        if st.button("Generate Steps"):
+            st.error("Enter OpenAI API key to use ChatGPT tasks.")
+        elif st.button("Generate Steps", key="btn_steps"):
             client = get_client(openai_key)
             with st.spinner("Generating steps..."):
                 steps = gpt_steps(client, transcript)
             st.text_area("Steps", steps, height=250)
             st.download_button("Download Steps", steps, "steps.txt")
-            return None, None
 
-    # --- Quiz ---
+    # --- Quiz (ChatGPT) ---
     if task == "Quiz (ChatGPT)":
         if not openai_key:
-            st.error("Enter OpenAI API key.")
-            return None, None
-
-        if st.button("Generate Quiz"):
+            st.error("Enter OpenAI API key to use ChatGPT tasks.")
+        elif st.button("Generate Quiz", key="btn_quiz"):
             client = get_client(openai_key)
             with st.spinner("Generating quiz..."):
                 quiz = gpt_quiz(client, transcript)
             st.text_area("Quiz", quiz, height=300)
             st.download_button("Download Quiz", quiz, "quiz.txt")
-            return None, None
-
-    return None, None
