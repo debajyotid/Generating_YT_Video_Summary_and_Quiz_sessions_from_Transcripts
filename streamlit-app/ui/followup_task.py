@@ -20,7 +20,7 @@ from core.audio import generate_audio
 # ---------------------------------------------------------
 # UI Section: Follow-up Actions on Summary
 # ---------------------------------------------------------
-def ui_followup_section(summary, summary_lang, openai_key):
+def ui_followup_section(openai_key: str):
     """
     Renders the Streamlit UI for follow-up actions on the generated summary.
 
@@ -30,14 +30,16 @@ def ui_followup_section(summary, summary_lang, openai_key):
     3.  **Download**: Allows the user to download the summary as a text file.
 
     Args:
-        summary (str | None): The generated summary text. If None, the section is skipped.
-        summary_lang (str): The language code of the summary text (e.g., 'en').
         openai_key (str): The OpenAI API key (required for audio generation).
 
     Returns:
         None
     """
-    if summary is None:
+    summary = st.session_state.get("summary")
+    summary_lang = st.session_state.get("summary_lang")
+
+    if not summary:
+        st.info("Run a summarisation task in Step 2 to enable follow-up actions.")
         return
 
     st.header("Step 3: Follow-up Actions on Summary")
@@ -48,19 +50,27 @@ def ui_followup_section(summary, summary_lang, openai_key):
     # --- Translate Summary ---
     with col1:
         tgt_label = st.selectbox(
-                                    "Translate summary to",
-                                    list(PREDEFINED_LANGS.keys()),
-                                    key="summary_translate",
-                                )
+            "Translate summary to",
+            list(PREDEFINED_LANGS.keys()),
+            key="summary_translate_tgt",
+        )
         tgt_lang = PREDEFINED_LANGS[tgt_label]
 
-        if st.button("Translate Summary"):
+        if st.button("Translate Summary", key="btn_translate_summary"):
             try:
                 translator = get_translation_pipeline(summary_lang, tgt_lang)
                 with st.spinner("Translating summary..."):
                     translated = translate_text(summary, translator)
-                st.text_area(f"Summary translated to {tgt_label}", translated, height=200)
-                st.download_button("Download Translated Summary", translated, "summary_translated.txt")
+                st.text_area(
+                    f"Summary translated to {tgt_label}",
+                    translated,
+                    height=200,
+                )
+                st.download_button(
+                    "Download Translated Summary",
+                    translated,
+                    "summary_translated.txt",
+                )
             except Exception as e:
                 st.error(f"Error translating summary: {e}")
 
@@ -69,12 +79,14 @@ def ui_followup_section(summary, summary_lang, openai_key):
         if not openai_key:
             st.info("Enter OpenAI key for audio.")
         else:
-            if st.button("Generate Summary Audio"):
+            if st.button("Generate Summary Audio", key="btn_summary_audio"):
                 client = get_client(openai_key)
                 with st.spinner("Generating audio..."):
                     audio_bytes = generate_audio(summary, client)
                 st.audio(audio_bytes, format="audio/mp3")
-                st.download_button("Download Summary Audio", audio_bytes, "summary.mp3")
+                st.download_button(
+                    "Download Summary Audio", audio_bytes, "summary.mp3"
+                )
 
     # --- Download Summary ---
     with col3:
