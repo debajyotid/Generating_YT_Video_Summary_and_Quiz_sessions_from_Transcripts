@@ -73,10 +73,7 @@ def ui_initial_form_renderer():
 
     # Language selection (if options loaded)
     if st.session_state.transcript_options_loaded and st.session_state.available_transcripts:
-        lang_display = [
-            f"{code} - {name}"
-            for code, name in st.session_state.available_transcripts
-        ]
+        lang_display = [f"{code} - {name}" for code, name in st.session_state.available_transcripts]
         # keep previous selection if possible
         default_index = 0
         if st.session_state.transcript_lang:
@@ -85,12 +82,10 @@ def ui_initial_form_renderer():
                     default_index = i
                     break
 
-        choice = st.selectbox(
-            "Choose transcript language",
-            lang_display,
-            index=default_index,
-            key="transcript_lang_select",
-        )
+        choice = st.selectbox("Choose transcript language",
+                              lang_display,
+                              index=default_index,
+                              key="transcript_lang_select",)
         chosen_code = choice.split(" - ")[0]
 
         if st.button("Fetch Transcript", key="btn_fetch_transcript"):
