@@ -65,11 +65,10 @@ def get_transcript(video_id, language_code=None):
     Returns:
         str: The concatenated text of the transcript.
     """
-    ytt = YouTubeTranscriptApi()
     if language_code:
         #transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=[language_code])
-        transcript = ytt.fetch(video_id, languages=[language_code]) #--- EDITED --- modified to use instance method as per recent changes
+        transcript =  YouTubeTranscriptApi().fetch(video_id, languages=[language_code]) #--- EDITED --- modified to use instance method as per recent changes
     else:
         #transcript = YouTubeTranscriptApi.get_transcript(video_id)
-        transcript = ytt.fetch(video_id) #--- EDITED --- modified to use instance method as per recent changes
+        transcript = YouTubeTranscriptApi().fetch(video_id) #--- EDITED --- modified to use instance method as per recent changes
     return " ".join([seg["text"] for seg in transcript])
