@@ -93,7 +93,7 @@ The transcript acts as the central shared resource. Once loaded, the user can tr
 ---------------------------------------------------------------------------
 - This is a seperate 'ui/' module
 - Streamlit components that read/write to st.session_state and call core functions.
-    - **ui.render_form**: Handles URL input and transcript retrieval.
+    - **ui.render_form**: Handles URL input and transcript retrieval with support for manual transcript upload/paste fallback.
     - **ui.initial_task_selection**: Manages primary tasks (Summary, Quiz, etc.).
     - **ui.followup_task**: Handles secondary actions like translating summaries or downloading audio.
       
@@ -118,6 +118,7 @@ Key state variables include:
     session_state.transcript
     session_state.transcript_lang
     session_state.transcript_options_loaded
+	session_state.manual_mode
     session_state.summary
     session_state.summary_lang
     session_state.openai_key
@@ -203,9 +204,11 @@ This is useful for:
    
 5. Ensure requirements.txt includes:
    
-		- openai
+		- torch
+   		- openai
    		- streamlit
 		- transformers
+   		- sentencepiece
 		- youtube-transcript-api==1.0.3
 
 ### Deploy Docker Image to Cloud Platforms
