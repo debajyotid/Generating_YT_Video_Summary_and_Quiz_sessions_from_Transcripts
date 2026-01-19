@@ -2,7 +2,7 @@
 Transcript Module.
 
 This module handles interactions with YouTube to extract video information and retrieve transcripts.
-It uses the `youtube_transcript_api` to fetch transcripts in various languages.
+It uses the 'youtube_transcript_api' library to fetch transcripts in various languages.
 
 Dependencies:
     - youtube_transcript_api: For fetching transcripts.
