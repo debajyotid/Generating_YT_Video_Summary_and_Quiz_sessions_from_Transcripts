@@ -59,14 +59,8 @@ def ui_followup_section(openai_key: str):
             try:
                 translator = get_translation_pipeline(summary_lang, tgt_lang)
                 with st.spinner("Translating summary..."): translated = translate_text(summary, translator)
-                st.text_area(f"Summary translated to {tgt_label}",
-                             translated,
-                             height=200,
-                             )
-                st.download_button("Download Translated Summary",
-                                   translated,
-                                   "summary_translated.txt",
-                                   )
+                st.text_area(f"Summary translated to {tgt_label}",translated,height=200,)
+                st.download_button("Download Translated Summary",translated,"summary_translated.txt",)
             except Exception as e:
                 st.error(f"Error translating summary: {e}")
 
@@ -80,9 +74,7 @@ def ui_followup_section(openai_key: str):
                 with st.spinner("Generating audio..."):
                     audio_bytes = generate_audio(summary, client)
                 st.audio(audio_bytes, format="audio/mp3")
-                st.download_button(
-                    "Download Summary Audio", audio_bytes, "summary.mp3"
-                )
+                st.download_button("Download Summary Audio", audio_bytes, "summary.mp3")
 
     # --- Download Summary ---
     with col3:
