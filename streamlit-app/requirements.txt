@@ -1,4 +1,6 @@
+torch
 openai
 streamlit
 transformers
+sentencepiece
 youtube-transcript-api==1.0.3
