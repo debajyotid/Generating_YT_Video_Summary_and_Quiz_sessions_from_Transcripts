@@ -157,10 +157,14 @@ def main():
     ui_initial_form_renderer()
 
     # Step 2: Primary Task (updates session_state.summary / summary_lang)
-    ui_primary_task_section(st.session_state.openai_key)
+    # Render Step 2 ONLY if transcript exists
+    if st.session_state.get("transcript"):
+        ui_primary_task_section(st.session_state.openai_key)
 
     # Step 3: Follow-up Actions on summary (uses summary from session_state)
-    ui_followup_section(st.session_state.openai_key)
+    # Render Step 3 ONLY if summary exists
+    if st.session_state.get("summary"):
+        ui_followup_section(st.session_state.openai_key)
 
 if __name__ == "__main__":
     main()
