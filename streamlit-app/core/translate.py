@@ -54,7 +54,7 @@ def get_translation_pipeline(src_lang, tgt_lang):
     return pipeline("translation", model=model_name)
 
 @st.cache_data(show_spinner=False)
-def translate_text(text, translator, max_length=512):
+def translate_text(text, _translator, max_length=512):
     """
     Translates a long text string using the provided translator pipeline.
 
@@ -71,5 +71,5 @@ def translate_text(text, translator, max_length=512):
     segments = [text[i:i+max_length] for i in range(0, len(text), max_length)]
     translated = ""
     for seg in segments:
-        translated += translator(seg)[0]["translation_text"]
+        translated += _translator(seg)[0]["translation_text"]
     return translated
