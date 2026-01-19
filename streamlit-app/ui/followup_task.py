@@ -45,7 +45,7 @@ def ui_followup_section(openai_key: str):
     st.header("Step 3: Follow-up Actions on Summary")
     st.text_area("Current Summary", summary, height=200)
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns([1,1,1])
 
     # --- Translate Summary ---
     with col1:
