@@ -49,28 +49,24 @@ def ui_followup_section(openai_key: str):
 
     # --- Translate Summary ---
     with col1:
-        tgt_label = st.selectbox(
-            "Translate summary to",
-            list(PREDEFINED_LANGS.keys()),
-            key="summary_translate_tgt",
-        )
+        tgt_label = st.selectbox("Translate summary to",
+                                 list(PREDEFINED_LANGS.keys()),
+                                 key="summary_translate_tgt",
+                                 )
         tgt_lang = PREDEFINED_LANGS[tgt_label]
 
         if st.button("Translate Summary", key="btn_translate_summary"):
             try:
                 translator = get_translation_pipeline(summary_lang, tgt_lang)
-                with st.spinner("Translating summary..."):
-                    translated = translate_text(summary, translator)
-                st.text_area(
-                    f"Summary translated to {tgt_label}",
-                    translated,
-                    height=200,
-                )
-                st.download_button(
-                    "Download Translated Summary",
-                    translated,
-                    "summary_translated.txt",
-                )
+                with st.spinner("Translating summary..."): translated = translate_text(summary, translator)
+                st.text_area(f"Summary translated to {tgt_label}",
+                             translated,
+                             height=200,
+                             )
+                st.download_button("Download Translated Summary",
+                                   translated,
+                                   "summary_translated.txt",
+                                   )
             except Exception as e:
                 st.error(f"Error translating summary: {e}")
 
