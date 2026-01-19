@@ -2,7 +2,7 @@
 Summarization Module.
 
 This module provides functionality for summarizing text using local open-source models
-via the Hugging Face `transformers` library. It includes:
+via the Hugging Face 'transformers' library. It includes:
 1.  Loading the summarization pipeline (cached).
 2.  Summarizing long text by splitting it into chunks.
 3.  Utility for splitting text.
