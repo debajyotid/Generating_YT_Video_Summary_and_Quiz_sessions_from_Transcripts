@@ -46,7 +46,7 @@ def ui_primary_task_section(openai_key: str):
 
     Returns:
         tuple[str | None, str | None]: A tuple containing (result_text, result_language_code).
-            Returns (None, None) if no task is selected or if the task (like Steps/Quiz) does not produce a chainable text result.
+        (None, None) if no task is selected or if the task (like Steps/Quiz) does not produce a chainable text result.
     """
     st.header("Step 2: Primary Task")
     _init_task_state()
@@ -73,11 +73,10 @@ def ui_primary_task_section(openai_key: str):
 
     # --- Translation ---
     if task == "Translation":
-        tgt_label = st.selectbox(
-            "Translate transcript to",
-            list(PREDEFINED_LANGS.keys()),
-            key="translate_transcript_tgt",
-        )
+        tgt_label = st.selectbox("Translate transcript to",
+                                 list(PREDEFINED_LANGS.keys()),
+                                 key="translate_transcript_tgt",
+                                 )
         tgt_lang = PREDEFINED_LANGS[tgt_label]
 
         if st.button("Translate Transcript", key="btn_translate_transcript"):
@@ -85,13 +84,8 @@ def ui_primary_task_section(openai_key: str):
                 translator = get_translation_pipeline(transcript_lang, tgt_lang)
                 with st.spinner("Translating transcript..."):
                     translated = translate_text(transcript, translator)
-                st.text_area(
-                    f"Transcript translated to {tgt_label}",
-                    translated,
-                    height=200,
-                )
+                st.text_area(f"Transcript translated to {tgt_label}",translated,height=200,)
                 st.download_button("Download Translation", translated, "translated.txt")
-                # Optional: treat translated transcript as new summary-like content
             except Exception as e:
                 st.error(f"Translation error: {e}")
 
