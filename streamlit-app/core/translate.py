@@ -2,7 +2,7 @@
 Translation Module.
 
 This module provides functionality for translating text between supported languages
-using Hugging Face's `transformers` library and pre-trained models (Helsinki-NLP).
+using Hugging Face's 'transformers' library and pre-trained models (Helsinki-NLP).
 It includes:
 1.  Configuration for supported language pairs and models.
 2.  Loading and caching translation pipelines.
@@ -45,7 +45,7 @@ def get_translation_pipeline(src_lang, tgt_lang):
         transformers.Pipeline: The loaded translation pipeline.
 
     Raises:
-        ValueError: If the requested language pair is not supported in `TRANSLATION_MODELS`.
+        ValueError: If the requested language pair is not supported in 'TRANSLATION_MODELS'ß.
     """
     key = (src_lang, tgt_lang)
     if key not in TRANSLATION_MODELS:
