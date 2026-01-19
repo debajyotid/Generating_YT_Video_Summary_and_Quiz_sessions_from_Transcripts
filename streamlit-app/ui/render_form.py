@@ -25,6 +25,10 @@ def _init_transcript_state():
         st.session_state.transcript_lang = None
     if "video_id" not in st.session_state:
         st.session_state.video_id = None
+    # Added for tracking manual upload of transcripts of automatic retrieval fails
+    if "manual_mode" not in st.session_state:
+        st.session_state.manual_mode = False
+
 
 def ui_initial_form_renderer():
     """
@@ -67,36 +71,12 @@ def ui_initial_form_renderer():
                         st.session_state.available_transcripts = options
                         st.session_state.video_id = video_id
                         st.session_state.transcript_options_loaded = True
+                        st.session_state.manual_mode = False  # disable manual mode if options loaded successfully
                         st.success("Transcript options loaded.")
                 except Exception as e:
-                    # st.error(f"Error retrieving transcript: {e}") # --- COMMENTED OUT --- instead of showing error, show info for manual input
-                    # Adding the below info to guide user for manual transcript input as fallback
-                    # ---------------------------------------------------------
-                    # Manual transcript fallback (upload or paste)
-                    # ---------------------------------------------------------
-                    #st.subheader("If automatic transcript retrieval fails, add transcript manually")
-                    st.info("Automatic transcript retrieval failed. Please upload or paste the transcript manually below.")
-                    uploaded_file = st.file_uploader("Upload transcript file (.txt, .srt, .vtt)",
-                                                    type=["txt", "srt", "vtt"],
-                                                    key="manual_transcript_upload")
+                    st.session_state.manual_mode = True # Enable manual mode if automatic retrieval fails
+                    st.info("Automatic transcript retrieval failed. Please upload or paste the transcript in English, manually below.")
                     
-                    if uploaded_file:
-                        try:
-                            text = uploaded_file.read().decode("utf-8")
-                            st.session_state.transcript = text
-                            st.session_state.transcript_lang = "manual"
-                            st.success("Transcript loaded from uploaded file.")
-                        except Exception as e:
-                            st.error(f"Could not read uploaded file: {e}")
-
-                    manual_text = st.text_area("Or paste transcript manually", key="manual_transcript_paste")
-
-                    if manual_text.strip():
-                        st.session_state.transcript = manual_text.strip()
-                        st.session_state.transcript_lang = "manual"
-                        st.success("Transcript loaded from manual input.")
-                    
-
     # Language selection (if options loaded)
     if st.session_state.transcript_options_loaded and st.session_state.available_transcripts:
         lang_display = [f"{code} - {name}" for code, name in st.session_state.available_transcripts]
@@ -119,34 +99,37 @@ def ui_initial_form_renderer():
                 text = get_transcript(st.session_state.video_id, chosen_code)
                 st.session_state.transcript = text
                 st.session_state.transcript_lang = chosen_code
+                st.session_state.manual_mode = False  # disable manual mode if transcript fetched automatically
                 st.success("Transcript fetched successfully.")
             except Exception as e:
-                # st.error(f"Error retrieving transcript: {e}") # --- COMMENTED OUT --- instead of showing error, show info for manual input
-                # Adding the below info to guide user for manual transcript input as fallback
-                # ---------------------------------------------------------
-                # Manual transcript fallback (upload or paste)
-                # ---------------------------------------------------------
-                #st.subheader("If automatic transcript retrieval fails, add transcript manually")
-                st.info("Automatic transcript retrieval failed. Please upload or paste the transcript manually below.")
-                uploaded_file = st.file_uploader("Upload transcript file (.txt, .srt, .vtt)",
-                                                 type=["txt", "srt", "vtt"],
-                                                 key="manual_transcript_upload")
-                
-                if uploaded_file:
-                    try:
-                        text = uploaded_file.read().decode("utf-8")
-                        st.session_state.transcript = text
-                        st.session_state.transcript_lang = "manual"
-                        st.success("Transcript loaded from uploaded file.")
-                    except Exception as e:
-                        st.error(f"Could not read uploaded file: {e}")
+                st.session_state.manual_mode = True # Enable manual mode if automatic retrieval fails
+                st.info("Automatic transcript retrieval failed. Please upload or paste the transcript in English, manually below.")
 
-                manual_text = st.text_area("Or paste transcript manually", key="manual_transcript_paste")
+    # Adding the below info to guide user for manual transcript input as fallback
+    # ---------------------------------------------------------
+    # Manual transcript fallback (upload or paste)
+    # ---------------------------------------------------------    
+    if st.session_state.manual_mode and st.session_state.transcript is None:        
+        st.markdown("### 📄 Upload Transcript Manually")
+        uploaded_file = st.file_uploader("Upload transcript file (.txt, .srt, .vtt)",
+                                            type=["txt", "srt", "vtt"],
+                                            key="manual_transcript_upload")
+        
+        if uploaded_file:
+            try:
+                text = uploaded_file.read().decode("utf-8")
+                st.session_state.transcript = text
+                st.session_state.transcript_lang = "en" # Default to English for manual upload
+                st.success("Transcript loaded from uploaded file.")
+            except Exception as e:
+                st.error(f"Could not read uploaded file: {e}")
 
-                if manual_text.strip():
-                    st.session_state.transcript = manual_text.strip()
-                    st.session_state.transcript_lang = "manual"
-                    st.success("Transcript loaded from manual input.")
+        manual_text = st.text_area("Or paste transcript manually", key="manual_transcript_paste")
+
+        if manual_text.strip():
+            st.session_state.transcript = manual_text.strip()
+            st.session_state.transcript_lang = "en" # Default to English for manual upload
+            st.success("Transcript loaded from manual input.")
 
     # Always show transcript if present
     if st.session_state.transcript:
