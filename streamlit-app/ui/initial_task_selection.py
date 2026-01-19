@@ -55,17 +55,17 @@ def ui_primary_task_section(openai_key: str):
     transcript_lang = st.session_state.get("transcript_lang")
 
     task = st.selectbox(
-        "Select a task",
-        [
-            "None",
-            "Translation",
-            "Summarisation (Open Source)",
-            "Summarisation (ChatGPT)",
-            "Steps (ChatGPT)",
-            "Quiz (ChatGPT)",
-        ],
-        key="primary_task_select",
-    )
+                            "Select a task",
+                            [
+                                "None",
+                                "Translation",
+                                "Summarisation (Open Source)",
+                                "Summarisation (ChatGPT)",
+                                "Steps (ChatGPT)",
+                                "Quiz (ChatGPT)",
+                            ],
+                            key="primary_task_select",
+                        )
 
     if transcript is None:
         st.info("Load a transcript first in Step 1.")
