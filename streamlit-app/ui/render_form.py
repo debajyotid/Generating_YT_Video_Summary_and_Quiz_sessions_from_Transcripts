@@ -70,6 +70,8 @@ def ui_initial_form_renderer():
                         st.success("Transcript options loaded.")
                 except Exception as e:
                     st.error(f"Error fetching transcripts: {e}")
+                    # Adding the below info to guide user for manual transcript input as fallback
+                    st.info("Automatic transcript retrieval failed. Please upload or paste the transcript manually below.")
 
     # Language selection (if options loaded)
     if st.session_state.transcript_options_loaded and st.session_state.available_transcripts:
@@ -96,6 +98,31 @@ def ui_initial_form_renderer():
                 st.success("Transcript fetched successfully.")
             except Exception as e:
                 st.error(f"Error retrieving transcript: {e}")
+
+    # ---------------------------------------------------------
+    # Manual transcript fallback (upload or paste)
+    # ---------------------------------------------------------
+    st.subheader("If automatic transcript retrieval fails, add transcript manually")
+
+    uploaded_file = st.file_uploader("Upload transcript file (.txt, .srt, .vtt)",
+                                     type=["txt", "srt", "vtt"],
+                                     key="manual_transcript_upload")
+
+    if uploaded_file:
+        try:
+            text = uploaded_file.read().decode("utf-8")
+            st.session_state.transcript = text
+            st.session_state.transcript_lang = "manual"
+            st.success("Transcript loaded from uploaded file.")
+        except Exception as e:
+            st.error(f"Could not read uploaded file: {e}")
+
+    manual_text = st.text_area("Or paste transcript manually", key="manual_transcript_paste")
+
+    if manual_text.strip():
+        st.session_state.transcript = manual_text.strip()
+        st.session_state.transcript_lang = "manual"
+        st.success("Transcript loaded from manual input.")
 
     # Always show transcript if present
     if st.session_state.transcript:
