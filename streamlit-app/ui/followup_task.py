@@ -60,21 +60,20 @@ def ui_followup_section():
 
     # --- Audio ---
     with col2:
-        if (("openai_key" not in st.session_state) or (st.session_state.openai_key.strip() == "")):
+        if "openai_key" not in st.session_state:
             st.session_state.openai_key = ""
-            # Render the input box
-            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)        
+        # Render the input box
+        st.session_state.openai_key = st.text_input("Enter your OpenAI API Key for Audio", type="password", value=st.session_state.openai_key)        
         # Only show the button if a key is entered
         if st.session_state.openai_key.strip() != "":
-            client, err = get_client(st.session_state.openai_key)
-            if err:
-                st.error("❌ Invalid API key. Please try again.")
-                st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted    
-                st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
-                st.stop()
-            else:
-                st.success("✅ API key validated successfully.")
-                if st.button("Generate Summary Audio", key="btn_summary_audio"):
+            if st.button("Generate Summary Audio", key="btn_summary_audio"):
+                client, err = get_client(st.session_state.openai_key)
+                if err:
+                    st.error(err)
+                    st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
+                    st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
+                    st.stop()
+                else:
                     with st.spinner("Generating audio..."):
                         audio_bytes = generate_audio(summary, client)
                     st.audio(audio_bytes, format="audio/mp3")
