@@ -65,7 +65,10 @@ def ui_followup_section():
             st.session_state.openai_key = st.text_input("Enter your OpenAI API Key for Audio", type="password", value=st.session_state.openai_key)        
         else:
             if st.button("Generate Summary Audio", key="btn_summary_audio"):
-                client = get_client(st.session_state.openai_key)
+                client, err = get_client(st.session_state.openai_key)
+                if err:
+                    st.error(err)
+                    st.stop()
                 with st.spinner("Generating audio..."):
                     audio_bytes = generate_audio(summary, client)
                 st.audio(audio_bytes, format="audio/mp3")
