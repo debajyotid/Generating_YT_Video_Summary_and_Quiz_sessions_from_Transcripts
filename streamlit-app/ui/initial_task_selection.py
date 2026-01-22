@@ -26,7 +26,7 @@ def _init_task_state():
     if "summary_lang" not in st.session_state:
         st.session_state.summary_lang = None
 
-def ui_primary_task_section(openai_key: str):
+def ui_primary_task_section():
     """
     Renders the Streamlit UI for the primary task selection and execution.
 
@@ -40,9 +40,6 @@ def ui_primary_task_section(openai_key: str):
     3.  **Summarisation (ChatGPT)**: Generates a summary using OpenAI's GPT models.
     4.  **Steps (ChatGPT)**: Extracts step-by-step instructions using OpenAI's GPT models.
     5.  **Quiz (ChatGPT)**: Generates a multiple-choice quiz using OpenAI's GPT models.
-
-    Args:
-        openai_key (str): The OpenAI API key provided by the user (required for GPT tasks).
 
     Returns:
         tuple[str | None, str | None]: A tuple containing (result_text, result_language_code).
@@ -101,10 +98,13 @@ def ui_primary_task_section(openai_key: str):
 
     # --- Summarisation (ChatGPT) ---
     if task == "Summarisation (ChatGPT)":
-        if not openai_key:
-            st.error("Enter OpenAI API key to use ChatGPT tasks.")
+        if "openai_key" not in st.session_state:
+            st.session_state.openai_key = ""
+            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)
+        # if not openai_key:
+        #     st.error("Enter OpenAI API key to use ChatGPT tasks.")
         elif st.button("Summarise with ChatGPT", key="btn_summarise_gpt"):
-            client = get_client(openai_key)
+            client = get_client(st.session_state.openai_key)
             with st.spinner("Summarising with ChatGPT..."):
                 summary = gpt_summary(client, transcript)
             st.text_area("Summary (ChatGPT)", summary, height=200)
@@ -113,10 +113,13 @@ def ui_primary_task_section(openai_key: str):
 
     # --- Steps (ChatGPT) ---
     if task == "Steps (ChatGPT)":
-        if not openai_key:
-            st.error("Enter OpenAI API key to use ChatGPT tasks.")
+        if "openai_key" not in st.session_state:
+            st.session_state.openai_key = ""
+            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)        
+        # if not openai_key:
+        #     st.error("Enter OpenAI API key to use ChatGPT tasks.")
         elif st.button("Generate Steps", key="btn_steps"):
-            client = get_client(openai_key)
+            client = get_client(st.session_state.openai_key)
             with st.spinner("Generating steps..."):
                 steps = gpt_steps(client, transcript)
             st.text_area("Steps", steps, height=250)
@@ -124,10 +127,13 @@ def ui_primary_task_section(openai_key: str):
 
     # --- Quiz (ChatGPT) ---
     if task == "Quiz (ChatGPT)":
-        if not openai_key:
-            st.error("Enter OpenAI API key to use ChatGPT tasks.")
+        if "openai_key" not in st.session_state:
+            st.session_state.openai_key = ""
+            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)        
+        # if not openai_key:
+        #     st.error("Enter OpenAI API key to use ChatGPT tasks.")
         elif st.button("Generate Quiz", key="btn_quiz"):
-            client = get_client(openai_key)
+            client = get_client(st.session_state.openai_key)
             with st.spinner("Generating quiz..."):
                 quiz = gpt_quiz(client, transcript)
             st.text_area("Quiz", quiz, height=300)
