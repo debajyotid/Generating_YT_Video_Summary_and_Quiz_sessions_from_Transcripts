@@ -148,23 +148,18 @@ def main():
     st.set_page_config(page_title="Learn With AI", layout="wide")
     st.title("🎓 Learn With AI — Modular YouTube Learning Assistant")
 
-    if "openai_key" not in st.session_state:
-        st.session_state.openai_key = ""
-
-    st.session_state.openai_key = st.text_input("Enter your OpenAI API Key", type="password", value=st.session_state.openai_key)
-
     # Step 1: Transcript (updates session_state.transcript / transcript_lang / video_id)
     ui_initial_form_renderer()
 
     # Step 2: Primary Task (updates session_state.summary / summary_lang)
     # Render Step 2 ONLY if transcript exists
     if st.session_state.get("transcript"):
-        ui_primary_task_section(st.session_state.openai_key)
+        ui_primary_task_section()
 
     # Step 3: Follow-up Actions on summary (uses summary from session_state)
     # Render Step 3 ONLY if summary exists
     if st.session_state.get("summary"):
-        ui_followup_section(st.session_state.openai_key)
+        ui_followup_section()
 
 if __name__ == "__main__":
     main()
