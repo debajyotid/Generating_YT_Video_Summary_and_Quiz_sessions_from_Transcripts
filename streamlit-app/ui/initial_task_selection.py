@@ -98,10 +98,10 @@ def ui_primary_task_section():
 
     # --- Summarisation (ChatGPT) ---
     if task == "Summarisation (ChatGPT)":
-        if (("openai_key" not in st.session_state) or (st.session_state.openai_key.strip() == "")):
+        if "openai_key" not in st.session_state:
             st.session_state.openai_key = ""
-            # Render the input box
-            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)
+        # Render the input box
+        st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)
         # Only show the button if a key is entered
         if st.session_state.openai_key.strip() != "":
             client, err = get_client(st.session_state.openai_key)
@@ -121,10 +121,10 @@ def ui_primary_task_section():
 
     # --- Steps (ChatGPT) ---
     if task == "Steps (ChatGPT)":
-        if (("openai_key" not in st.session_state) or (st.session_state.openai_key.strip() == "")):
+        if "openai_key" not in st.session_state:
             st.session_state.openai_key = ""
-            # Render the input box
-            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)        
+        # Render the input box
+        st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)        
         # Only show the button if a key is entered
         if st.session_state.openai_key.strip() != "":
             client, err = get_client(st.session_state.openai_key)
@@ -143,10 +143,10 @@ def ui_primary_task_section():
 
     # --- Quiz (ChatGPT) ---
     if task == "Quiz (ChatGPT)":
-        if (("openai_key" not in st.session_state) or (st.session_state.openai_key.strip() == "")):
+        if "openai_key" not in st.session_state:
             st.session_state.openai_key = ""
-            # Render the input box
-            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)        
+        # Render the input box
+        st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)        
         # Only show the button if a key is entered
         if st.session_state.openai_key.strip() != "":
             client, err = get_client(st.session_state.openai_key)
