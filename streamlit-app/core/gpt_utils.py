@@ -23,7 +23,16 @@ def get_client(api_key):
     Returns:
         openai.OpenAI: An instance of the OpenAI client.
     """
-    return OpenAI(api_key=api_key)
+    if not api_key or api_key.strip() == "":
+        return None, "No API key provided. Please enter a valid OpenAI API key."
+
+    try:
+        client = OpenAI(api_key=api_key)
+        return client, None
+    
+    except Exception as e:
+        return None, f"Invalid or unauthorized API key. Please enter a valid key. ({e})"
+    
 
 def gpt_summary(client, transcript_text):
     """
