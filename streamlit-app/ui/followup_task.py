@@ -20,7 +20,7 @@ from core.audio import generate_audio
 # ---------------------------------------------------------
 # UI Section: Follow-up Actions on Summary
 # ---------------------------------------------------------
-def ui_followup_section(openai_key: str):
+def ui_followup_section():
     """
     Renders the Streamlit UI for follow-up actions on the generated summary.
 
@@ -28,9 +28,6 @@ def ui_followup_section(openai_key: str):
     1.  **Translation**: Translates the summary into a selected target language.
     2.  **Audio Generation**: Converts the summary text into speech using OpenAI's TTS API.
     3.  **Download**: Allows the user to download the summary as a text file.
-
-    Args:
-        openai_key (str): The OpenAI API key (required for audio generation).
 
     Returns:
         None
@@ -49,10 +46,7 @@ def ui_followup_section(openai_key: str):
 
     # --- Translate Summary ---
     with col1:
-        tgt_label = st.selectbox("Translate summary to",
-                                 list(PREDEFINED_LANGS.keys()),
-                                 key="summary_translate_tgt",
-                                 )
+        tgt_label = st.selectbox("Translate summary to", list(PREDEFINED_LANGS.keys()), key="summary_translate_tgt",)
         tgt_lang = PREDEFINED_LANGS[tgt_label]
 
         if st.button("Translate Summary", key="btn_translate_summary"):
@@ -66,11 +60,12 @@ def ui_followup_section(openai_key: str):
 
     # --- Audio ---
     with col2:
-        if not openai_key:
-            st.info("Enter OpenAI key for audio.")
+        if "openai_key" not in st.session_state:
+            st.session_state.openai_key = ""
+            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key for Audio", type="password", value=st.session_state.openai_key)        
         else:
             if st.button("Generate Summary Audio", key="btn_summary_audio"):
-                client = get_client(openai_key)
+                client = get_client(st.session_state.openai_key)
                 with st.spinner("Generating audio..."):
                     audio_bytes = generate_audio(summary, client)
                 st.audio(audio_bytes, format="audio/mp3")
