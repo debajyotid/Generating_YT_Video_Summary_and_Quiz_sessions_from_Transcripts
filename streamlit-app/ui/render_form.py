@@ -28,6 +28,9 @@ def _init_transcript_state():
     # Added for tracking manual upload of transcripts of automatic retrieval fails
     if "manual_mode" not in st.session_state:
         st.session_state.manual_mode = False
+    # Added for tracking validation of OpenAI API key
+    if "apikey_valid" not in st.session_state:
+        st.session_state.apikey_valid = False
 
 
 def ui_initial_form_renderer():
