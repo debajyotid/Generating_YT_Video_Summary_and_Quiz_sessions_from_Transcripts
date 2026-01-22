@@ -110,6 +110,7 @@ def ui_primary_task_section():
                     st.error(err)
                     st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
                     st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
+                    st.stop()
                 else:
                     with st.spinner("Summarising with ChatGPT..."):
                         summary = gpt_summary(client, transcript)
@@ -131,6 +132,7 @@ def ui_primary_task_section():
                     st.error(err)
                     st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
                     st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
+                    st.stop()
                 else:
                     with st.spinner("Generating steps..."):
                         steps = gpt_steps(client, transcript)
@@ -151,6 +153,7 @@ def ui_primary_task_section():
                     st.error(err)
                     st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
                     st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
+                    st.stop()
                 else:
                     with st.spinner("Generating quiz..."):
                         quiz = gpt_quiz(client, transcript)

@@ -72,6 +72,7 @@ def ui_followup_section():
                     st.error(err)
                     st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
                     st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
+                    st.stop()
                 else:
                     with st.spinner("Generating audio..."):
                         audio_bytes = generate_audio(summary, client)
