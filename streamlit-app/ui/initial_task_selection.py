@@ -104,27 +104,19 @@ def ui_primary_task_section():
         st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)
         # Only show the button if a key is entered
         if st.session_state.openai_key.strip() != "":
-            client, err = get_client(st.session_state.openai_key)
-            if err:
-                st.error("❌ Invalid API key. Please try again.")
-                st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted    
-                st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
-                st.stop()
-            else:
-                st.success("✅ API key validated successfully.")
-                if st.button("Summarise with ChatGPT", key="btn_summarise_gpt"):
-                    client, err = get_client(st.session_state.openai_key)
-                    if err:
-                        st.error(err)
-                        st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
-                        st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
-                        st.stop()
-                    else:
-                        with st.spinner("Summarising with ChatGPT..."):
-                            summary = gpt_summary(client, transcript)
-                        st.text_area("Summary (ChatGPT)", summary, height=200)
-                        st.session_state.summary = summary
-                        st.session_state.summary_lang = transcript_lang
+            if st.button("Summarise with ChatGPT", key="btn_summarise_gpt"):
+                client, err = get_client(st.session_state.openai_key)
+                if err:
+                    st.error(err)
+                    st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
+                    st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
+                    st.stop()
+                else:
+                    with st.spinner("Summarising with ChatGPT..."):
+                        summary = gpt_summary(client, transcript)
+                    st.text_area("Summary (ChatGPT)", summary, height=200)
+                    st.session_state.summary = summary
+                    st.session_state.summary_lang = transcript_lang
 
     # --- Steps (ChatGPT) ---
     if task == "Steps (ChatGPT)":
@@ -134,15 +126,14 @@ def ui_primary_task_section():
         st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)        
         # Only show the button if a key is entered
         if st.session_state.openai_key.strip() != "":
-            client, err = get_client(st.session_state.openai_key)
-            if err:
-                st.error("❌ Invalid API key. Please try again.")
-                st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted    
-                st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
-                st.stop()
-            else:
-                st.success("✅ API key validated successfully.")
-                if st.button("Generate Steps", key="btn_steps"):
+            if st.button("Generate Steps", key="btn_steps"):
+                client, err = get_client(st.session_state.openai_key)
+                if err:
+                    st.error(err)
+                    st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
+                    st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
+                    st.stop()
+                else:
                     with st.spinner("Generating steps..."):
                         steps = gpt_steps(client, transcript)
                     st.text_area("Steps", steps, height=250)
@@ -156,15 +147,14 @@ def ui_primary_task_section():
         st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)        
         # Only show the button if a key is entered
         if st.session_state.openai_key.strip() != "":
-            client, err = get_client(st.session_state.openai_key)
-            if err:
-                st.error("❌ Invalid API key. Please try again.")
-                st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted    
-                st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
-                st.stop()
-            else:
-                st.success("✅ API key validated successfully.")            
-                if st.button("Generate Quiz", key="btn_quiz"):
+            if st.button("Generate Quiz", key="btn_quiz"):
+                client, err = get_client(st.session_state.openai_key)
+                if err:
+                    st.error(err)
+                    st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
+                    st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
+                    st.stop()
+                else:
                     with st.spinner("Generating quiz..."):
                         quiz = gpt_quiz(client, transcript)
                     st.text_area("Quiz", quiz, height=300)
