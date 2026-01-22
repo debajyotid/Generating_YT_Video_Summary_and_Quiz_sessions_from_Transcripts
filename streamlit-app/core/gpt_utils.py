@@ -12,6 +12,7 @@ Dependencies:
     - openai: The official Python library for the OpenAI API.
 """
 from openai import OpenAI
+from openai import AuthenticationError
 
 def get_client(api_key):
     """
@@ -28,10 +29,15 @@ def get_client(api_key):
 
     try:
         client = OpenAI(api_key=api_key)
+
+        client.models.list()    # The actual call to verify the key
+
         return client, None
     
+    except AuthenticationError:
+        return None, "Invalid or unauthorized API key. Please enter a valid key."
     except Exception as e:
-        return None, f"Invalid or unauthorized API key. Please enter a valid key. ({e})"
+        return None, f"Failed to initialize OpenAI client: {e}"
     
 
 def gpt_summary(client, transcript_text):
