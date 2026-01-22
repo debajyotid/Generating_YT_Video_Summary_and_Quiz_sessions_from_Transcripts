@@ -104,7 +104,10 @@ def ui_primary_task_section():
         # if not openai_key:
         #     st.error("Enter OpenAI API key to use ChatGPT tasks.")
         elif st.button("Summarise with ChatGPT", key="btn_summarise_gpt"):
-            client = get_client(st.session_state.openai_key)
+            client, err = get_client(st.session_state.openai_key)
+            if err:
+                st.error(err)
+                st.stop()
             with st.spinner("Summarising with ChatGPT..."):
                 summary = gpt_summary(client, transcript)
             st.text_area("Summary (ChatGPT)", summary, height=200)
@@ -119,7 +122,10 @@ def ui_primary_task_section():
         # if not openai_key:
         #     st.error("Enter OpenAI API key to use ChatGPT tasks.")
         elif st.button("Generate Steps", key="btn_steps"):
-            client = get_client(st.session_state.openai_key)
+            client, err = get_client(st.session_state.openai_key)
+            if err:
+                st.error(err)
+                st.stop()
             with st.spinner("Generating steps..."):
                 steps = gpt_steps(client, transcript)
             st.text_area("Steps", steps, height=250)
@@ -133,7 +139,10 @@ def ui_primary_task_section():
         # if not openai_key:
         #     st.error("Enter OpenAI API key to use ChatGPT tasks.")
         elif st.button("Generate Quiz", key="btn_quiz"):
-            client = get_client(st.session_state.openai_key)
+            client, err = get_client(st.session_state.openai_key)
+            if err:
+                st.error(err)
+                st.stop()
             with st.spinner("Generating quiz..."):
                 quiz = gpt_quiz(client, transcript)
             st.text_area("Quiz", quiz, height=300)
