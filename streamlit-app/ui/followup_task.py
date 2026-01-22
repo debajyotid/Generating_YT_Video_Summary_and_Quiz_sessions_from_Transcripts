@@ -73,7 +73,7 @@ def ui_followup_section():
                     st.error(f"❌ {err}")
                     st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
                     st.session_state.apikey_valid = False    
-                    st.rerun("fragment")                                        # Queue for rerun so the input box reappears immediately
+                    st.rerun(scope="fragment")                                        # Queue for rerun so the input box reappears immediately
                 else:
                     st.success("✅ API key validated successfully.")
                     st.session_state.apikey_valid = True                        # Mark the key as valid
