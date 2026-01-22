@@ -73,9 +73,11 @@ def ui_followup_section():
                     st.error(f"❌ {err}")
                     st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
                     st.session_state.apikey_valid = False                       # Setting flag to indicate invalid key
+                    st.session_state.openaiclient = None                        # Reset the client
                 else:
                     st.success("✅ API key validated successfully.")
                     st.session_state.apikey_valid = True                        # Mark the key as valid
+                    st.session_state.openaiclient = client                      # Store the validated client
                     if st.button("Generate Summary Audio", key="btn_summary_audio"):
                         with st.spinner("Generating audio..."):
                             audio_bytes = generate_audio(summary, client)
@@ -84,7 +86,7 @@ def ui_followup_section():
             else:
                 if st.button("Generate Summary Audio", key="btn_summary_audio"):
                     with st.spinner("Generating audio..."):
-                        audio_bytes = generate_audio(summary, client)
+                        audio_bytes = generate_audio(summary, st.session_state.openaiclient)
                     st.audio(audio_bytes, format="audio/mp3")
                     st.download_button("Download Summary Audio", audio_bytes, "summary.mp3")                
 

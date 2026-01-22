@@ -31,6 +31,8 @@ def _init_transcript_state():
     # Added for tracking validation of OpenAI API key
     if "apikey_valid" not in st.session_state:
         st.session_state.apikey_valid = False
+    if "openaiclient" not in st.session_state:
+        st.session_state.openaiclient = None
 
 
 def ui_initial_form_renderer():

@@ -110,10 +110,12 @@ def ui_primary_task_section():
                 if err:
                     st.error(f"❌ {err}")
                     st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
-                    st.session_state.apikey_valid = False                       # Setting flag to indicate invalid key 
+                    st.session_state.apikey_valid = False                       # Setting flag to indicate invalid key
+                    st.session_state.openaiclient = None                        # Reset the client 
                 else:
                     st.success("✅ API key validated successfully.")
                     st.session_state.apikey_valid = True                        # Mark the key as valid
+                    st.session_state.openaiclient = client                      # Store the validated client
                     if st.button("Summarise with ChatGPT", key="btn_summarise_gpt"):
                         with st.spinner("Summarising with ChatGPT..."):
                             summary = gpt_summary(client, transcript)
@@ -123,7 +125,7 @@ def ui_primary_task_section():
             else:
                 if st.button("Summarise with ChatGPT", key="btn_summarise_gpt"):
                     with st.spinner("Summarising with ChatGPT..."):
-                        summary = gpt_summary(client, transcript)
+                        summary = gpt_summary(st.session_state.openaiclient, transcript)
                     st.text_area("Summary (ChatGPT)", summary, height=200)
                     st.session_state.summary = summary
                     st.session_state.summary_lang = transcript_lang
@@ -143,9 +145,11 @@ def ui_primary_task_section():
                     st.error(f"❌ {err}")
                     st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
                     st.session_state.apikey_valid = False                       # Setting flag to indicate invalid key
+                    st.session_state.openaiclient = None                        # Reset the client
                 else:
                     st.success("✅ API key validated successfully.")
-                    st.session_state.apikey_valid = True
+                    st.session_state.apikey_valid = True                        # Mark the key as valid
+                    st.session_state.openaiclient = client                      # Store the validated client
                     if st.button("Generate Steps", key="btn_steps"):
                         with st.spinner("Generating steps..."):
                             steps = gpt_steps(client, transcript)
@@ -154,7 +158,7 @@ def ui_primary_task_section():
             else:
                 if st.button("Generate Steps", key="btn_steps"):
                     with st.spinner("Generating steps..."):
-                        steps = gpt_steps(client, transcript)
+                        steps = gpt_steps(st.session_state.openaiclient, transcript)
                     st.text_area("Steps", steps, height=250)
                     st.download_button("Download Steps", steps, "steps.txt")
 
@@ -172,10 +176,12 @@ def ui_primary_task_section():
                 if err:
                     st.error(f"❌ {err}")
                     st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted 
-                    st.session_state.apikey_valid = False                       # Setting flag to indicate invalid key   
+                    st.session_state.apikey_valid = False                       # Setting flag to indicate invalid key
+                    st.session_state.openaiclient = None                        # Reset the client   
                 else:
                     st.success("✅ API key validated successfully.")
-                    st.session_state.apikey_valid = True                        # Mark the key as valid            
+                    st.session_state.apikey_valid = True                        # Mark the key as valid
+                    st.session_state.openaiclient = client                      # Store the validated client            
                     if st.button("Generate Quiz", key="btn_quiz"):
                         with st.spinner("Generating quiz..."):
                             quiz = gpt_quiz(client, transcript)
@@ -184,6 +190,6 @@ def ui_primary_task_section():
             else:
                 if st.button("Generate Quiz", key="btn_quiz"):
                     with st.spinner("Generating quiz..."):
-                        quiz = gpt_quiz(client, transcript)
+                        quiz = gpt_quiz(st.session_state.openaiclient, transcript)
                     st.text_area("Quiz", quiz, height=300)
                     st.download_button("Download Quiz", quiz, "quiz.txt")
