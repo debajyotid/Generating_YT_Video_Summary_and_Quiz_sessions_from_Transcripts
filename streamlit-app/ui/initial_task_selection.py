@@ -113,11 +113,18 @@ def ui_primary_task_section():
             else:
                 st.success("✅ API key validated successfully.")
                 if st.button("Summarise with ChatGPT", key="btn_summarise_gpt"):
-                    with st.spinner("Summarising with ChatGPT..."):
-                        summary = gpt_summary(client, transcript)
-                    st.text_area("Summary (ChatGPT)", summary, height=200)
-                    st.session_state.summary = summary
-                    st.session_state.summary_lang = transcript_lang
+                    client, err = get_client(st.session_state.openai_key)
+                    if err:
+                        st.error(err)
+                        st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
+                        st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
+                        st.stop()
+                    else:
+                        with st.spinner("Summarising with ChatGPT..."):
+                            summary = gpt_summary(client, transcript)
+                        st.text_area("Summary (ChatGPT)", summary, height=200)
+                        st.session_state.summary = summary
+                        st.session_state.summary_lang = transcript_lang
 
     # --- Steps (ChatGPT) ---
     if task == "Steps (ChatGPT)":
