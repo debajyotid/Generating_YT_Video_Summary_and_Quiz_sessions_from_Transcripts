@@ -100,50 +100,59 @@ def ui_primary_task_section():
     if task == "Summarisation (ChatGPT)":
         if "openai_key" not in st.session_state:
             st.session_state.openai_key = ""
-            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)
-        # if not openai_key:
-        #     st.error("Enter OpenAI API key to use ChatGPT tasks.")
-        elif st.button("Summarise with ChatGPT", key="btn_summarise_gpt"):
-            client, err = get_client(st.session_state.openai_key)
-            if err:
-                st.error(err)
-                st.stop()
-            with st.spinner("Summarising with ChatGPT..."):
-                summary = gpt_summary(client, transcript)
-            st.text_area("Summary (ChatGPT)", summary, height=200)
-            st.session_state.summary = summary
-            st.session_state.summary_lang = transcript_lang
+        # Render the input box
+        st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)
+        # Only show the button if a key is entered
+        if st.session_state.openai_key.strip() != "":
+            if st.button("Summarise with ChatGPT", key="btn_summarise_gpt"):
+                client, err = get_client(st.session_state.openai_key)
+                if err:
+                    st.error(err)
+                    st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
+                    st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
+                else:
+                    with st.spinner("Summarising with ChatGPT..."):
+                        summary = gpt_summary(client, transcript)
+                    st.text_area("Summary (ChatGPT)", summary, height=200)
+                    st.session_state.summary = summary
+                    st.session_state.summary_lang = transcript_lang
 
     # --- Steps (ChatGPT) ---
     if task == "Steps (ChatGPT)":
         if "openai_key" not in st.session_state:
             st.session_state.openai_key = ""
-            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)        
-        # if not openai_key:
-        #     st.error("Enter OpenAI API key to use ChatGPT tasks.")
-        elif st.button("Generate Steps", key="btn_steps"):
-            client, err = get_client(st.session_state.openai_key)
-            if err:
-                st.error(err)
-                st.stop()
-            with st.spinner("Generating steps..."):
-                steps = gpt_steps(client, transcript)
-            st.text_area("Steps", steps, height=250)
-            st.download_button("Download Steps", steps, "steps.txt")
+        # Render the input box
+        st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)        
+        # Only show the button if a key is entered
+        if st.session_state.openai_key.strip() != "":
+            if st.button("Generate Steps", key="btn_steps"):
+                client, err = get_client(st.session_state.openai_key)
+                if err:
+                    st.error(err)
+                    st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
+                    st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
+                else:
+                    with st.spinner("Generating steps..."):
+                        steps = gpt_steps(client, transcript)
+                    st.text_area("Steps", steps, height=250)
+                    st.download_button("Download Steps", steps, "steps.txt")
 
     # --- Quiz (ChatGPT) ---
     if task == "Quiz (ChatGPT)":
         if "openai_key" not in st.session_state:
             st.session_state.openai_key = ""
-            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)        
-        # if not openai_key:
-        #     st.error("Enter OpenAI API key to use ChatGPT tasks.")
-        elif st.button("Generate Quiz", key="btn_quiz"):
-            client, err = get_client(st.session_state.openai_key)
-            if err:
-                st.error(err)
-                st.stop()
-            with st.spinner("Generating quiz..."):
-                quiz = gpt_quiz(client, transcript)
-            st.text_area("Quiz", quiz, height=300)
-            st.download_button("Download Quiz", quiz, "quiz.txt")
+        # Render the input box
+        st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)        
+        # Only show the button if a key is entered
+        if st.session_state.openai_key.strip() != "":
+            if st.button("Generate Quiz", key="btn_quiz"):
+                client, err = get_client(st.session_state.openai_key)
+                if err:
+                    st.error(err)
+                    st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
+                    st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
+                else:
+                    with st.spinner("Generating quiz..."):
+                        quiz = gpt_quiz(client, transcript)
+                    st.text_area("Quiz", quiz, height=300)
+                    st.download_button("Download Quiz", quiz, "quiz.txt")

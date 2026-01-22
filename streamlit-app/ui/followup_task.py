@@ -62,17 +62,21 @@ def ui_followup_section():
     with col2:
         if "openai_key" not in st.session_state:
             st.session_state.openai_key = ""
-            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key for Audio", type="password", value=st.session_state.openai_key)        
-        else:
+        # Render the input box
+        st.session_state.openai_key = st.text_input("Enter your OpenAI API Key for Audio", type="password", value=st.session_state.openai_key)        
+        # Only show the button if a key is entered
+        if st.session_state.openai_key.strip() != "":
             if st.button("Generate Summary Audio", key="btn_summary_audio"):
                 client, err = get_client(st.session_state.openai_key)
                 if err:
                     st.error(err)
-                    st.stop()
-                with st.spinner("Generating audio..."):
-                    audio_bytes = generate_audio(summary, client)
-                st.audio(audio_bytes, format="audio/mp3")
-                st.download_button("Download Summary Audio", audio_bytes, "summary.mp3")
+                    st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
+                    st.experimental_rerun()                                     # Force rerun so the input box reappears immediately
+                else:
+                    with st.spinner("Generating audio..."):
+                        audio_bytes = generate_audio(summary, client)
+                    st.audio(audio_bytes, format="audio/mp3")
+                    st.download_button("Download Summary Audio", audio_bytes, "summary.mp3")
 
     # --- Download Summary ---
     with col3:
