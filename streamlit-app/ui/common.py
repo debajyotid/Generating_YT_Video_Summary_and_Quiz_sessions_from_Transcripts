@@ -44,3 +44,18 @@ def ui_get_openai_client():
             st.rerun()
 
     return None
+
+def ui_render_refresh_button():
+    """
+    Renders a 'REFRESH' button to clear session state and reset the app.
+    Displays a success message upon successful reset.
+    """
+    # Check if the app was just reset and display a success message
+    if st.session_state.get("reset_success"):
+        st.success("✅ App has been reset successfully.")
+        del st.session_state["reset_success"]
+
+    if st.button("REFRESH", type="primary", help="Clear all data and reset"):
+        st.session_state.clear()
+        st.session_state.reset_success = True
+        st.rerun()

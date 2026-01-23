@@ -125,6 +125,7 @@ Compatible with Streamlit Community Cloud, simply ensure that the **requirements
 """
 import streamlit as st
 
+from ui.common import ui_render_refresh_button
 from ui.render_form import ui_initial_form_renderer
 from ui.initial_task_selection import ui_primary_task_section
 from ui.followup_task import ui_followup_section
@@ -145,6 +146,10 @@ def main():
     
     Orchestrates the Learn With AI app using session_state as the single source of truth for transcript, summary, language choices, and workflow chaining.
     """
+
+    # Create a REFRESH button to reset the app state
+    ui_render_refresh_button()
+
     st.set_page_config(page_title="Learn With AI", layout="wide")
     st.title("🎓 Learn With AI — Modular YouTube Learning Assistant")
 
