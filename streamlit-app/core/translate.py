@@ -68,8 +68,13 @@ def translate_text(text, _translator, max_length=512):
     Returns:
         str: The concatenated translated text.
     """
+
+    progress = st.progress(0)
+    total = len(segments)
+
     segments = [text[i:i+max_length] for i in range(0, len(text), max_length)]
     translated = ""
-    for seg in segments:
+    for i, seg in enumerate(segments):
         translated += _translator(seg)[0]["translation_text"]
+        progress.progress((i+1)/total)
     return translated

@@ -41,9 +41,12 @@ def summarize_text(text, _summarizer, chunk_words=200):
     words = text.split()
     chunks = [' '.join(words[i:i+chunk_words]) for i in range(0, len(words), chunk_words)]
     summary = ""
-    for chunk in chunks:
+    progress = st.progress(0)
+    total = len(chunks)
+    for i, chunk in enumerate(chunks):
         result = _summarizer(chunk, max_length=100, min_length=30, do_sample=False)
         summary += result[0]["summary_text"] + " "
+        progress.progress((i+1)/total)
     return summary.strip()
 
 def split_text_into_chunks(text, max_chunk_size=4000):
