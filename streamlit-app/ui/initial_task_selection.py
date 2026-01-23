@@ -15,7 +15,8 @@ import streamlit as st
 
 from core.translate import (PREDEFINED_LANGS,get_translation_pipeline,translate_text,)
 from core.summarization import (load_summarizer,summarize_text,)
-from core.gpt_utils import (get_client,gpt_summary,gpt_steps,gpt_quiz,)
+from core.gpt_utils import (gpt_summary,gpt_steps,gpt_quiz,)
+from ui.common import ui_get_openai_client
 
 # ---------------------------------------------------------
 # UI Section: Primary Task Selector
@@ -98,98 +99,31 @@ def ui_primary_task_section():
 
     # --- Summarisation (ChatGPT) ---
     if task == "Summarisation (ChatGPT)":
-        if (("openai_key" not in st.session_state) or (st.session_state.openai_key.strip() == "")):
-            st.session_state.openai_key = ""
-            # Render the input box
-            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)
-        # Only show the button if a key is entered
-        if st.session_state.openai_key.strip() != "":
-            # if the API Key hasdn't been validated yet
-            if not st.session_state.apikey_valid:            
-                client, err = get_client(st.session_state.openai_key)
-                if err:
-                    st.error(f"❌ {err}")
-                    st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
-                    st.session_state.apikey_valid = False                       # Setting flag to indicate invalid key
-                    st.session_state.openaiclient = None                        # Reset the client 
-                else:
-                    st.success("✅ API key validated successfully.")
-                    st.session_state.apikey_valid = True                        # Mark the key as valid
-                    st.session_state.openaiclient = client                      # Store the validated client
-                    if st.button("Summarise with ChatGPT", key="btn_summarise_gpt"):
-                        with st.spinner("Summarising with ChatGPT..."):
-                            summary = gpt_summary(client, transcript)
-                        st.text_area("Summary (ChatGPT)", summary, height=200)
-                        st.session_state.summary = summary
-                        st.session_state.summary_lang = transcript_lang
-            else:
-                if st.button("Summarise with ChatGPT", key="btn_summarise_gpt"):
-                    with st.spinner("Summarising with ChatGPT..."):
-                        summary = gpt_summary(st.session_state.openaiclient, transcript)
-                    st.text_area("Summary (ChatGPT)", summary, height=200)
-                    st.session_state.summary = summary
-                    st.session_state.summary_lang = transcript_lang
+        client = ui_get_openai_client()
+        if client:
+            if st.button("Summarise with ChatGPT", key="btn_summarise_gpt"):
+                with st.spinner("Summarising with ChatGPT..."):
+                    summary = gpt_summary(client, transcript)
+                st.text_area("Summary (ChatGPT)", summary, height=200)
+                st.session_state.summary = summary
+                st.session_state.summary_lang = transcript_lang
 
     # --- Steps (ChatGPT) ---
     if task == "Steps (ChatGPT)":
-        if (("openai_key" not in st.session_state) or (st.session_state.openai_key.strip() == "")):
-            st.session_state.openai_key = ""
-            # Render the input box
-            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)        
-        # Only show the button if a key is entered
-        if st.session_state.openai_key.strip() != "":
-            # if the API Key hasdn't been validated yet
-            if not st.session_state.apikey_valid:
-                client, err = get_client(st.session_state.openai_key)
-                if err:
-                    st.error(f"❌ {err}")
-                    st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
-                    st.session_state.apikey_valid = False                       # Setting flag to indicate invalid key
-                    st.session_state.openaiclient = None                        # Reset the client
-                else:
-                    st.success("✅ API key validated successfully.")
-                    st.session_state.apikey_valid = True                        # Mark the key as valid
-                    st.session_state.openaiclient = client                      # Store the validated client
-                    if st.button("Generate Steps", key="btn_steps"):
-                        with st.spinner("Generating steps..."):
-                            steps = gpt_steps(client, transcript)
-                        st.text_area("Steps", steps, height=250)
-                        st.download_button("Download Steps", steps, "steps.txt")
-            else:
-                if st.button("Generate Steps", key="btn_steps"):
-                    with st.spinner("Generating steps..."):
-                        steps = gpt_steps(st.session_state.openaiclient, transcript)
-                    st.text_area("Steps", steps, height=250)
-                    st.download_button("Download Steps", steps, "steps.txt")
+        client = ui_get_openai_client()
+        if client:
+            if st.button("Generate Steps", key="btn_steps"):
+                with st.spinner("Generating steps..."):
+                    steps = gpt_steps(client, transcript)
+                st.text_area("Steps", steps, height=250)
+                st.download_button("Download Steps", steps, "steps.txt")
 
     # --- Quiz (ChatGPT) ---
     if task == "Quiz (ChatGPT)":
-        if (("openai_key" not in st.session_state) or (st.session_state.openai_key.strip() == "")):
-            st.session_state.openai_key = ""
-            # Render the input box
-            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)        
-        # Only show the button if a key is entered
-        if st.session_state.openai_key.strip() != "":
-            # if the API Key hasdn't been validated yet
-            if not st.session_state.apikey_valid:
-                client, err = get_client(st.session_state.openai_key)
-                if err:
-                    st.error(f"❌ {err}")
-                    st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted 
-                    st.session_state.apikey_valid = False                       # Setting flag to indicate invalid key
-                    st.session_state.openaiclient = None                        # Reset the client   
-                else:
-                    st.success("✅ API key validated successfully.")
-                    st.session_state.apikey_valid = True                        # Mark the key as valid
-                    st.session_state.openaiclient = client                      # Store the validated client            
-                    if st.button("Generate Quiz", key="btn_quiz"):
-                        with st.spinner("Generating quiz..."):
-                            quiz = gpt_quiz(client, transcript)
-                        st.text_area("Quiz", quiz, height=300)
-                        st.download_button("Download Quiz", quiz, "quiz.txt")
-            else:
-                if st.button("Generate Quiz", key="btn_quiz"):
-                    with st.spinner("Generating quiz..."):
-                        quiz = gpt_quiz(st.session_state.openaiclient, transcript)
-                    st.text_area("Quiz", quiz, height=300)
-                    st.download_button("Download Quiz", quiz, "quiz.txt")
+        client = ui_get_openai_client()
+        if client:
+            if st.button("Generate Quiz", key="btn_quiz"):
+                with st.spinner("Generating quiz..."):
+                    quiz = gpt_quiz(client, transcript)
+                st.text_area("Quiz", quiz, height=300)
+                st.download_button("Download Quiz", quiz, "quiz.txt")

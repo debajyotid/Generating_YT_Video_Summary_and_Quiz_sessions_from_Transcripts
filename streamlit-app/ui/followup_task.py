@@ -14,8 +14,8 @@ Dependencies:
 import streamlit as st
 
 from core.translate import (PREDEFINED_LANGS,get_translation_pipeline,translate_text,)
-from core.gpt_utils import (get_client,)
 from core.audio import generate_audio
+from ui.common import ui_get_openai_client
 
 # ---------------------------------------------------------
 # UI Section: Follow-up Actions on Summary
@@ -60,35 +60,13 @@ def ui_followup_section():
 
     # --- Audio ---
     with col2:
-        if (("openai_key" not in st.session_state) or (st.session_state.openai_key.strip() == "")):
-            st.session_state.openai_key = ""
-            # Render the input box
-            st.session_state.openai_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", value=st.session_state.openai_key)
-        # Only show the button if a key is entered
-        if st.session_state.openai_key.strip() != "":
-            # if the API Key hasdn't been validated yet
-            if not st.session_state.apikey_valid:
-                client, err = get_client(st.session_state.openai_key)                    
-                if err:
-                    st.error(f"❌ {err}")
-                    st.session_state.openai_key = ""                            # Reset the key so the input box becomes empty + highlighted
-                    st.session_state.apikey_valid = False                       # Setting flag to indicate invalid key
-                    st.session_state.openaiclient = None                        # Reset the client
-                else:
-                    st.success("✅ API key validated successfully.")
-                    st.session_state.apikey_valid = True                        # Mark the key as valid
-                    st.session_state.openaiclient = client                      # Store the validated client
-                    if st.button("Generate Summary Audio", key="btn_summary_audio"):
-                        with st.spinner("Generating audio..."):
-                            audio_bytes = generate_audio(summary, client)
-                        st.audio(audio_bytes, format="audio/mp3")
-                        st.download_button("Download Summary Audio", audio_bytes, "summary.mp3")
-            else:
-                if st.button("Generate Summary Audio", key="btn_summary_audio"):
-                    with st.spinner("Generating audio..."):
-                        audio_bytes = generate_audio(summary, st.session_state.openaiclient)
-                    st.audio(audio_bytes, format="audio/mp3")
-                    st.download_button("Download Summary Audio", audio_bytes, "summary.mp3")                
+        client = ui_get_openai_client()
+        if client:
+            if st.button("Generate Summary Audio", key="btn_summary_audio"):
+                with st.spinner("Generating audio..."):
+                    audio_bytes = generate_audio(summary, client)
+                st.audio(audio_bytes, format="audio/mp3")
+                st.download_button("Download Summary Audio", audio_bytes, "summary.mp3")
 
     # --- Download Summary ---
     with col3:

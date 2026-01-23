@@ -1,5 +1,5 @@
 """
-GPT Utilities Module.
+GPT Utilities Module
 
 This module provides helper functions to interact with OpenAI's GPT models.
 It includes functionality for:
@@ -22,7 +22,9 @@ def get_client(api_key):
         api_key (str): The OpenAI API key.
 
     Returns:
-        openai.OpenAI: An instance of the OpenAI client.
+        tuple[openai.OpenAI | None, str | None]: A tuple containing the client
+        instance and an error message. If successful, the error is None.
+        If it fails, the client is None.
     """
     if not api_key or api_key.strip() == "":
         return None, "No API key provided. Please enter a valid OpenAI API key."
@@ -30,14 +32,15 @@ def get_client(api_key):
     try:
         client = OpenAI(api_key=api_key)
 
-        client.models.list()    # The actual call to verify the key
+        # The constructor doesn't validate the key, so we make a test call.
+        client.models.list()
 
         return client, None
     
     except AuthenticationError:
-        return None, "Invalid or unauthorized API key. Please enter a valid key."
+        return None, "Authentication failed. Please check if your OpenAI API key is correct and has permissions."
     except Exception as e:
-        return None, f"Failed to initialize OpenAI client: {e}"
+        return None, f"An error occurred while initializing the OpenAI client: {e}"
     
 
 def gpt_summary(client, transcript_text):
