@@ -1,7 +1,7 @@
 import streamlit as st
 
 @st.cache_data(show_spinner=False)
-def generate_audio(text, client):
+def generate_audio(text, _client):
     """
     Generates speech audio from text using OpenAI's Text-to-Speech API.
 
@@ -16,7 +16,7 @@ def generate_audio(text, client):
     Returns:
         bytes: The binary content of the generated audio file.
     """
-    speech = client.audio.speech.create(
+    speech = _client.audio.speech.create(
                                             model="gpt-4o-mini-tts",
                                             voice="alloy",
                                             input=text
