@@ -71,10 +71,7 @@ def ui_primary_task_section():
 
     # --- Translation ---
     if task == "Translation":
-        tgt_label = st.selectbox("Translate transcript to",
-                                 list(PREDEFINED_LANGS.keys()),
-                                 key="translate_transcript_tgt",
-                                 )
+        tgt_label = st.selectbox("Translate transcript to",list(PREDEFINED_LANGS.keys()),key="translate_transcript_tgt",)
         tgt_lang = PREDEFINED_LANGS[tgt_label]
 
         if st.button("Translate Transcript", key="btn_translate_transcript"):

@@ -9,7 +9,7 @@ Dependencies:
     - core.transcript: For backend logic related to YouTube video IDs and transcripts.
 """
 import streamlit as st
-from core.transcript import (extract_video_id, list_available_transcripts, get_transcript,)
+from core.transcript import (extract_video_id, list_available_transcripts, get_transcript, generate_transcript_text)
 
 # ---------------------------------------------------------
 # UI Section: Transcript Loader
@@ -53,16 +53,35 @@ def ui_initial_form_renderer():
             Returns (None, None, None) if the transcript is not loaded or an error occurs.
     """
     st.header("Step 1: Transcript")
+    st.subheader("Please provide a valid YouTube URL, or an audio/video file, for generating a transcript.")
 
     _init_transcript_state()
 
     youtube_url = st.text_input("Enter YouTube URL", value=st.session_state.get("youtube_url", ""))
     st.session_state.youtube_url = youtube_url  # persist URL
 
+    uploaded_file = st.file_uploader("Upload a video (.mp4, .mkv, .mov, .avi) or audio file (.mp3, .wav, .flac, .m4a) for generating transcripts ",
+                                    type=["mp4", "mkv", "mov", "avi", "mp3", "wav", "flac", "m4a"],
+                                    key="video_audio_upload")
+
     # Load transcript options
     if st.button("Load Transcript Options", key="btn_load_transcripts"):
+        # Check if a valid URL is provided
         if not youtube_url:
-            st.error("Please enter a YouTube URL.")
+            # If no URL, check if file uploaded
+            if uploaded_file:
+                try:
+                    text = generate_transcript_text(uploaded_file)
+                    st.session_state.transcript = text
+                    st.session_state.transcript_lang = "en" # Default to English for manual upload
+                    st.session_state.manual_mode = False    # disable manual mode if file transcribed successfully
+                    st.success("Transcript generated from uploaded file.")
+                except Exception as e:
+                    st.session_state.manual_mode = True # Enable manual mode if automatic retrieval fails
+                    st.info("Unable to generate transcript from uploaded file. To proceed further, either upload/paste transcript in English below or retry with a different file.")
+            else:          
+                st.error("Please enter a YouTube URL or upload a video/audio file.")
+        # Proceeding to process provided URL
         else:
             video_id = extract_video_id(youtube_url)
             if not video_id:
@@ -82,33 +101,33 @@ def ui_initial_form_renderer():
                     st.session_state.manual_mode = True # Enable manual mode if automatic retrieval fails
                     st.info("Automatic transcript retrieval failed. Please upload or paste the transcript in English, manually below.")
                     
-    # Language selection (if options loaded)
-    if st.session_state.transcript_options_loaded and st.session_state.available_transcripts:
-        lang_display = [f"{code} - {name}" for code, name in st.session_state.available_transcripts]
-        # keep previous selection if possible
-        default_index = 0
-        if st.session_state.transcript_lang:
-            for i, (code, _) in enumerate(st.session_state.available_transcripts):
-                if code == st.session_state.transcript_lang:
-                    default_index = i
-                    break
+            # Language selection (if options loaded)
+            if st.session_state.transcript_options_loaded and st.session_state.available_transcripts:
+                lang_display = [f"{code} - {name}" for code, name in st.session_state.available_transcripts]
+                # keep previous selection if possible
+                default_index = 0
+                if st.session_state.transcript_lang:
+                    for i, (code, _) in enumerate(st.session_state.available_transcripts):
+                        if code == st.session_state.transcript_lang:
+                            default_index = i
+                            break
 
-        choice = st.selectbox("Choose transcript language",
-                              lang_display,
-                              index=default_index,
-                              key="transcript_lang_select",)
-        chosen_code = choice.split(" - ")[0]
+                choice = st.selectbox("Choose transcript language",
+                                    lang_display,
+                                    index=default_index,
+                                    key="transcript_lang_select",)
+                chosen_code = choice.split(" - ")[0]
 
-        if st.button("Fetch Transcript", key="btn_fetch_transcript"):
-            try:
-                text = get_transcript(st.session_state.video_id, chosen_code)
-                st.session_state.transcript = text
-                st.session_state.transcript_lang = chosen_code
-                st.session_state.manual_mode = False  # disable manual mode if transcript fetched automatically
-                st.success("Transcript fetched successfully.")
-            except Exception as e:
-                st.session_state.manual_mode = True # Enable manual mode if automatic retrieval fails
-                st.info("Automatic transcript retrieval failed. Please upload or paste the transcript in English, manually below.")
+                if st.button("Fetch Transcript", key="btn_fetch_transcript"):
+                    try:
+                        text = get_transcript(st.session_state.video_id, chosen_code)
+                        st.session_state.transcript = text
+                        st.session_state.transcript_lang = chosen_code
+                        st.session_state.manual_mode = False  # disable manual mode if transcript fetched automatically
+                        st.success("Transcript fetched successfully.")
+                    except Exception as e:
+                        st.session_state.manual_mode = True # Enable manual mode if automatic retrieval fails
+                        st.info("Automatic transcript retrieval failed. Please upload or paste the transcript in English, manually below.")
 
     # Adding the below info to guide user for manual transcript input as fallback
     # ---------------------------------------------------------
@@ -116,13 +135,13 @@ def ui_initial_form_renderer():
     # ---------------------------------------------------------    
     if st.session_state.manual_mode and st.session_state.transcript is None:        
         st.markdown("### 📄 Upload Transcript Manually")
-        uploaded_file = st.file_uploader("Upload transcript file (.txt, .srt, .vtt)",
-                                            type=["txt", "srt", "vtt"],
-                                            key="manual_transcript_upload")
+        uploaded_text_file = st.file_uploader("Upload transcript file (.txt, .srt, .vtt)",
+                                              type=["txt", "srt", "vtt"],
+                                              key="manual_transcript_upload")
         
-        if uploaded_file:
+        if uploaded_text_file:
             try:
-                text = uploaded_file.read().decode("utf-8")
+                text = uploaded_text_file.read().decode("utf-8")
                 st.session_state.transcript = text
                 st.session_state.transcript_lang = "en" # Default to English for manual upload
                 st.success("Transcript loaded from uploaded file.")

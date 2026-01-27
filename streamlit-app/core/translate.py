@@ -23,6 +23,7 @@ TRANSLATION_MODELS = {
                         ("en", "de"): "Helsinki-NLP/opus-mt-en-de",
                         ("es", "en"): "Helsinki-NLP/opus-mt-es-en",
                         ("fr", "en"): "Helsinki-NLP/opus-mt-fr-en",
+                        ("de", "en"): "Helsinki-NLP/opus-mt-de-en",
                     }
 
 PREDEFINED_LANGS = {
