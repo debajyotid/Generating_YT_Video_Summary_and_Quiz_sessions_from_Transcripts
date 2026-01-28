@@ -1,24 +1,31 @@
+import io
+import scipy.io.wavfile
 import streamlit as st
+from transformers import pipeline
 
-@st.cache_data(show_spinner=False)
-def generate_audio(text, _client):
+@st.cache_resource(show_spinner=False)
+def load_audio_piepeline():
     """
-    Generates speech audio from text using OpenAI's Text-to-Speech API.
-
-    This function uses the specified OpenAI client to convert the input text
-    into audio using the 'gpt-4o-mini-tts' model and 'alloy' voice.
-    The result is cached by Streamlit to avoid redundant API calls.
-
-    Args:
-        text (str): The text content to convert to speech.
-        client (openai.OpenAI): An initialized OpenAI client instance.
+    Loads and caches the TTS pipeline using the 'microsoft/VibeVoice-1.5B' model.
 
     Returns:
-        bytes: The binary content of the generated audio file.
+        transformers.Pipeline: The loaded summarization pipeline.
     """
-    speech = _client.audio.speech.create(
-                                            model="gpt-4o-mini-tts",
-                                            voice="alloy",
-                                            input=text
-                                        )
-    return speech.read()
+    return pipeline("text-to-speech", model="microsoft/VibeVoice-1.5B")
+
+@st.cache_data(show_spinner=False)
+def oss_audio(audio_gen_pipeline, text):
+    """
+    Generates audio from text using the provided pipeline.
+
+    Args:
+        text (str): The text to convert to speech.
+        _audio_gen_pipeline (transformers.Pipeline): The TTS pipeline.
+
+    Returns:
+        bytes: The audio data in WAV format.
+    """
+    output = audio_gen_pipeline(text)
+    buffer = io.BytesIO()
+    scipy.io.wavfile.write(buffer, output["sampling_rate"], output["audio"])
+    return buffer.getvalue()

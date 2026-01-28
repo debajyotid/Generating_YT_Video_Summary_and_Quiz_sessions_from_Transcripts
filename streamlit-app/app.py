@@ -125,8 +125,7 @@ Compatible with Streamlit Community Cloud, simply ensure that the **requirements
 """
 import streamlit as st
 
-from ui.common import ui_render_refresh_button
-from ui.render_form import ui_initial_form_renderer
+from ui.render_form import (ui_render_refresh_button, ui_initial_form_renderer)
 from ui.initial_task_selection import ui_primary_task_section
 from ui.followup_task import ui_followup_section
 

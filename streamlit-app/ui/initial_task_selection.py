@@ -15,8 +15,7 @@ import streamlit as st
 
 from core.translate import (PREDEFINED_LANGS,get_translation_pipeline,translate_text,)
 from core.summarization import (load_summarizer,summarize_text,)
-from core.gpt_utils import (gpt_summary,gpt_steps,gpt_quiz,)
-from ui.common import ui_get_openai_client
+from core.gpt_utils import (ui_get_openai_client, gpt_summary,gpt_steps,gpt_quiz,)
 
 # ---------------------------------------------------------
 # UI Section: Primary Task Selector

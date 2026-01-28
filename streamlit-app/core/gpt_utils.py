@@ -11,37 +11,59 @@ It includes functionality for:
 Dependencies:
     - openai: The official Python library for the OpenAI API.
 """
+import streamlit as st
 from openai import OpenAI
 from openai import AuthenticationError
 
-def get_client(api_key):
+def ui_get_openai_client():
     """
-    Initializes and returns an OpenAI client using the provided API key.
+    Manages the UI for OpenAI API key input and validation, returning a client.
 
-    Args:
-        api_key (str): The OpenAI API key.
+    This function encapsulates the logic for:
+    1.  Displaying a password input for the OpenAI API key.
+    2.  Calling the core `get_client` function to validate the key.
+    3.  Displaying success or error messages.
+    4.  Storing the validated client and status in session state.
+    5.  Triggering a rerun on successful validation to update the UI.
 
     Returns:
-        tuple[openai.OpenAI | None, str | None]: A tuple containing the client
-        instance and an error message. If successful, the error is None.
-        If it fails, the client is None.
+        openai.OpenAI | None: A validated OpenAI client instance if the key is
+        valid, otherwise None. The UI is updated as a side effect.
     """
+    # If key is already validated and client exists, return it.
+    if st.session_state.get("apikey_valid") and st.session_state.get("openaiclient"):
+        return st.session_state.openaiclient
+
+    # Prompt for key.
+    api_key = st.text_input("Enter your OpenAI API Key to use ChatGPT tasks.", type="password", key="api_key_input")
+
+    # If a key is provided, attempt to validate it.
     if not api_key or api_key.strip() == "":
-        return None, "No API key provided. Please enter a valid OpenAI API key."
+        st.session_state.apikey_valid = False
+        st.session_state.openaiclient = None
+        st.error(f"❌ No API key provided. Please enter a valid OpenAI API key.")
+    else:
+        if api_key:
+            try:
+                client = OpenAI(api_key=api_key)
 
-    try:
-        client = OpenAI(api_key=api_key)
+                # The constructor doesn't validate the key, so we make a test call.
+                client.models.list()
+            
+            except AuthenticationError:
+                st.error(f"❌ Couldn't authorise provided key. Please check if your OpenAI API key is correct and has permissions.")
+                st.session_state.apikey_valid = False                
+            except Exception as e:
+                st.error(f"❌ Error validating API key: {e}")
+                st.session_state.apikey_valid = False
 
-        # The constructor doesn't validate the key, so we make a test call.
-        client.models.list()
+            st.success("✅ API key validated successfully. You can now run the task.")
+            st.session_state.apikey_valid = True
+            st.session_state.openaiclient = client
+            st.session_state.openai_key = api_key  # Save the key for persistence
+            st.rerun()
 
-        return client, None
-    
-    except AuthenticationError:
-        return None, "Authentication failed. Please check if your OpenAI API key is correct and has permissions."
-    except Exception as e:
-        return None, f"An error occurred while initializing the OpenAI client: {e}"
-    
+    return None    
 
 def gpt_summary(client, transcript_text):
     """
@@ -119,3 +141,25 @@ def gpt_quiz(client, text):
                                                         ]
                                             )
     return response.choices[0].message.content
+
+def gpt_audio(client, text):
+    """
+    Generates speech audio from text using OpenAI's Text-to-Speech API.
+
+    This function uses the specified OpenAI client to convert the input text
+    into audio using the 'gpt-4o-mini-tts' model and 'alloy' voice.
+    The result is cached by Streamlit to avoid redundant API calls.
+
+    Args:
+        text (str): The text content to convert to speech.
+        client (openai.OpenAI): An initialized OpenAI client instance.
+
+    Returns:
+        bytes: The binary content of the generated audio file.
+    """
+    speech = client.audio.speech.create(
+                                            model="gpt-4o-mini-tts",
+                                            voice="alloy",
+                                            input=text
+                                        )
+    return speech.read()

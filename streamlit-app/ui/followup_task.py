@@ -14,8 +14,8 @@ Dependencies:
 import streamlit as st
 
 from core.translate import (PREDEFINED_LANGS,get_translation_pipeline,translate_text,)
-from core.audio import generate_audio
-from ui.common import ui_get_openai_client
+from core.audio import load_audio_piepeline, oss_audio
+from core.gpt_utils import ui_get_openai_client, gpt_audio
 
 # ---------------------------------------------------------
 # UI Section: Follow-up Actions on Summary
@@ -42,10 +42,22 @@ def ui_followup_section():
     st.header("Step 3: Follow-up Actions on Summary")
     st.text_area("Current Summary", summary, height=200)
 
-    col1, col2, col3 = st.columns([1,1,1])
+    task = st.selectbox(
+                        "Select a task",
+                        [
+                            "Download Summary",
+                            "Summary Translation",
+                            "Summary Audio (Open Source)",
+                            "Summary Audio (ChatGPT)",
+                        ],
+                        key="followup_task_select",
+                    )
+    # --- Download Summary ---
+    if task == "Download Summary":
+        st.download_button("Download Summary Text", summary, "summary.txt")
 
     # --- Translate Summary ---
-    with col1:
+    if task == "Summary Translation":
         tgt_label = st.selectbox("Translate summary to", list(PREDEFINED_LANGS.keys()), key="summary_translate_tgt",)
         tgt_lang = PREDEFINED_LANGS[tgt_label]
 
@@ -58,16 +70,21 @@ def ui_followup_section():
             except Exception as e:
                 st.error(f"Error translating summary: {e}")
 
-    # --- Audio ---
-    with col2:
+    # --- Audio (Open Source) ---
+    if task == "Summary Audio (Open Source)":
+        if st.button("Generate Summary Audio", key="btn_summary_audio"):
+            audio_gen = load_audio_piepeline()
+            with st.spinner("Generating audio..."):
+                audio_bytes = oss_audio(summary, audio_gen)
+            st.audio(audio_bytes, format="audio/wav")
+            st.download_button("Download Summary Audio", audio_bytes, "summary.wav")
+
+    # --- Audio (GPT) ---
+    if task == "Summary Audio (ChatGPT)":
         client = ui_get_openai_client()
         if client:
             if st.button("Generate Summary Audio", key="btn_summary_audio"):
                 with st.spinner("Generating audio..."):
-                    audio_bytes = generate_audio(summary, client)
+                    audio_bytes = gpt_audio(summary, client)
                 st.audio(audio_bytes, format="audio/mp3")
                 st.download_button("Download Summary Audio", audio_bytes, "summary.mp3")
-
-    # --- Download Summary ---
-    with col3:
-        st.download_button("Download Summary Text", summary, "summary.txt")

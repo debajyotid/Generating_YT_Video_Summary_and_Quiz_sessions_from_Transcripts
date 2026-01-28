@@ -26,7 +26,7 @@ def load_summarizer():
     return pipeline("summarization", model="facebook/bart-large-cnn")
 
 @st.cache_data(show_spinner=False)
-def summarize_text(text, _summarizer, chunk_words=200):
+def summarize_text(summarizer, text, chunk_words=200):
     """
     Summarizes a long text by splitting it into word-based chunks and summarizing each chunk.
 
@@ -44,7 +44,7 @@ def summarize_text(text, _summarizer, chunk_words=200):
     progress = st.progress(0)
     total = len(chunks)
     for i, chunk in enumerate(chunks):
-        result = _summarizer(chunk, max_length=100, min_length=30, do_sample=False)
+        result = summarizer(chunk, max_length=100, min_length=30, do_sample=False)
         summary += result[0]["summary_text"] + " "
         progress.progress((i+1)/total)
     return summary.strip()
