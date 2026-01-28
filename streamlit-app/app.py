@@ -134,22 +134,20 @@ from ui.followup_task import ui_followup_section
 # ---------------------------------------------------------
 def main():
     """
-    The main function of the Streamlit application. It serves as the entry point for the "Learn With AI" Streamlit application. It orchestrates the application flow by invoking specific UI sections defined in the 'ui' module.
+    The main entry point for the "Learn With AI" Streamlit application.
 
-    It performs the following actions:
-    1.  Configures the Streamlit page settings (title, layout).
-    2.  Prompts the user for an OpenAI API key.
-    3.  Invokes `ui_initial_form_renderer` to handle YouTube URL input and transcript retrieval.
-    4.  Invokes `ui_primary_task_section` to process the transcript (e.g., summarize, quiz).
-    5.  Invokes `ui_followup_section` to handle post-processing actions (e.g., audio generation).
-    
-    Orchestrates the Learn With AI app using session_state as the single source of truth for transcript, summary, language choices, and workflow chaining.
+    Orchestrates the application flow:
+    1.  **Configuration**: Sets page title and layout.
+    2.  **State Management**: Renders a refresh button to reset session state.
+    3.  **Step 1 (Transcript)**: Invokes `ui_initial_form_renderer` to load transcript via URL, upload, or manual input.
+    4.  **Step 2 (Primary Task)**: Invokes `ui_primary_task_section` if a transcript is present.
+    5.  **Step 3 (Follow-up)**: Invokes `ui_followup_section` if a summary is present.
     """
 
+    st.set_page_config(page_title="Learn With AI", layout="wide")
     # Create a REFRESH button to reset the app state
     ui_render_refresh_button()
 
-    st.set_page_config(page_title="Learn With AI", layout="wide")
     st.title("🎓 Learn With AI — Modular YouTube Learning Assistant")
 
     # Step 1: Transcript (updates session_state.transcript / transcript_lang / video_id)

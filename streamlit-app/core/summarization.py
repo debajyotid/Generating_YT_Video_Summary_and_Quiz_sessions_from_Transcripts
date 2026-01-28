@@ -30,23 +30,37 @@ def summarize_text(summarizer, text, chunk_words=200):
     """
     Summarizes a long text by splitting it into word-based chunks and summarizing each chunk.
 
+    Includes a progress bar and error handling for individual chunks to ensure partial success
+    if specific chunks fail.
+
     Args:
-        text (str): The input text to summarize.
         summarizer (transformers.Pipeline): The loaded summarization pipeline.
+        text (str): The input text to summarize.
         chunk_words (int, optional): The number of words per chunk. Defaults to 200.
 
     Returns:
         str: The combined summary of all chunks.
+
+    Raises:
+        ValueError: If summarization fails for all text chunks.
     """
     words = text.split()
     chunks = [' '.join(words[i:i+chunk_words]) for i in range(0, len(words), chunk_words)]
     summary = ""
     progress = st.progress(0)
     total = len(chunks)
+    
     for i, chunk in enumerate(chunks):
-        result = summarizer(chunk, max_length=100, min_length=30, do_sample=False)
-        summary += result[0]["summary_text"] + " "
+        try:
+            result = summarizer(chunk, max_length=100, min_length=30, do_sample=False)
+            summary += result[0]["summary_text"] + " "
+        except Exception as e:
+            st.warning(f"Skipping chunk {i+1} due to summarization error: {e}")
         progress.progress((i+1)/total)
+
+    if not summary:
+        raise ValueError("Summarization failed for all text chunks.")
+
     return summary.strip()
 
 def split_text_into_chunks(text, max_chunk_size=4000):

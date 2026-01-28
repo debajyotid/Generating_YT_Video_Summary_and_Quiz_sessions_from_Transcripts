@@ -59,23 +59,35 @@ def translate_text(translator, text, max_length=512):
     """
     Translates a long text string using the provided translator pipeline.
 
-    The text is split into segments to fit within the model's maximum sequence length.
+    The text is split into segments to fit within the model's maximum sequence length. 
+    Includes a progress bar and error handling for individual segments.
 
     Args:
-        text (str): The input text to translate.
         translator (transformers.Pipeline): The loaded translation pipeline.
+        text (str): The input text to translate.
         max_length (int, optional): The maximum character length for each segment. Defaults to 512.
 
     Returns:
         str: The concatenated translated text.
+
+    Raises:
+        ValueError: If translation fails for all text segments.
     """
 
+    segments = [text[i:i+max_length] for i in range(0, len(text), max_length)]
     progress = st.progress(0)
     total = len(segments)
 
-    segments = [text[i:i+max_length] for i in range(0, len(text), max_length)]
     translated = ""
+
     for i, seg in enumerate(segments):
-        translated += translator(seg)[0]["translation_text"]
+        try:
+            translated += translator(seg)[0]["translation_text"]
+        except Exception as e:
+            st.warning(f"Skipping segment {i+1} due to translation error: {e}")
         progress.progress((i+1)/total)
+    
+    if not translated:
+        raise ValueError("Translation failed for all text segments.")
+
     return translated

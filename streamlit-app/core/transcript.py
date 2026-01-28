@@ -76,10 +76,10 @@ def get_transcript(video_id, language_code=None):
 @st.cache_resource(show_spinner=False)
 def load_external_file():
     """
-    Loads and caches the trasncription pipeline using the 'openai/whisper-large-v3' model.
+    Loads and caches the automatic speech recognition pipeline using the 'openai/whisper-large-v3' model.
 
     Returns:
-        transformers.Pipeline: The loaded summarization pipeline.
+        transformers.Pipeline: The loaded ASR pipeline configured for chunked execution.
     """
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
@@ -105,7 +105,15 @@ def load_external_file():
 
 @st.cache_data(show_spinner=False)
 def generate_transcript_text(uplded_vid_aud_file):
+    """
+    Generates a transcript from an uploaded video or audio file using a local Whisper model.
 
-    result = load_external_file(uplded_vid_aud_file, 
-                                generate_kwargs={"task": "translate"})  # Generating the transcribed text in English 
+    Args:
+        uplded_vid_aud_file (UploadedFile): The file uploaded via Streamlit.
+
+    Returns:
+        str: The transcribed text in English.
+    """
+    pipe = load_external_file()
+    result = pipe(uplded_vid_aud_file, generate_kwargs={"task": "translate"})  # Generating the transcribed text in English 
     return (result["text"])

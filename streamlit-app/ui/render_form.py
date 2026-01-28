@@ -53,18 +53,14 @@ def ui_initial_form_renderer():
     """
     Renders the Streamlit UI for the transcript loading section.
 
-    This function manages the following user interactions:
-    1.  **Input**: Accepts a YouTube URL from the user.
-    2.  **Validation**: Validates the URL and extracts the video ID.
-    3.  **Selection**: Fetches available transcript languages and allows the user to select one.
-    4.  **Retrieval**: Fetches the transcript text for the selected language.
+    This function manages:
+    1.  **YouTube URL Input**: Validates URL, extracts ID, and fetches transcripts via API.
+    2.  **File Upload**: Accepts video/audio files and transcribes them locally using Whisper.
+    3.  **Manual Input**: Allows uploading text files or pasting text directly as a fallback.
+    4.  **Language Selection**: Allows selecting from available transcript languages for YouTube videos.
 
     Returns:
-        tuple[str | None, str | None, str | None]: A tuple containing:
-            - transcript_text (str): The full text of the transcript.
-            - language_code (str): The selected language code (e.g., 'en').
-            - video_id (str): The extracted YouTube video ID.
-            Returns (None, None, None) if the transcript is not loaded or an error occurs.
+        None: Updates st.session_state with transcript data.
     """
     st.header("Step 1: Transcript")
     st.subheader("Please provide a valid YouTube URL, or an audio/video file, for generating a transcript.")
